@@ -11,7 +11,7 @@ echo ${DIVIDER}
 cd ${TARGET_DIR}
 
 echo "Update from GitHub..."
-git pull origin master -q
+git pull -q origin master
 echo ${DIVIDER}
 echo "Make shell files executable..."
 chmod +x ${TARGET_DIR}/*.sh
