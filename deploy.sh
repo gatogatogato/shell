@@ -9,7 +9,7 @@ TARGET_DIR=~/shell
 echo ${DIVIDER}
 cd ${TARGET_DIR}
 echo "Update from GitHub..."
-git push
+git push .
 echo ${DIVIDER}
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 echo ${DIVIDER}
