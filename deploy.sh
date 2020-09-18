@@ -5,6 +5,7 @@
 export DIVIDER="---------------------------------------------------------"
 SECONDS=0
 TARGET_DIR=~/shell
+OS=$(uname -a)
 #
 echo ${DIVIDER}
 cd ${TARGET_DIR}
@@ -18,11 +19,21 @@ chmod +x ${TARGET_DIR}/*.sh
 echo ${DIVIDER}
 
 echo "Copy files..."
+
+case "${OS}" in
+  *Linux*) 
+	echo "Copy specific stuff for Linux platform..." 
+	cp ${TARGET_DIR}/update-debian.sh ~/update-debian.sh
+	;;
+  *Darwin*) 
+	echo "Copy specific stuff for MacOS platform..." 
+	;;
+esac
+echo "Copy generic stuff for all platforms..." 
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
 if [ "$SHELL" = "/bin/zsh" ]; then
-	echo "We are in ZSH. Activate new ~/.zshrc..."
-	source ~/.zshrc
+	echo "Use 'source ~/.zshrc' or log on to new shell instance to activate changes."
 fi
 
 echo "Took ${SECONDS} seconds to deploy."
