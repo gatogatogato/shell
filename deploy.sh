@@ -20,7 +20,7 @@ echo ${DIVIDER}
 echo "Copy files..."
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
-if [[ "$SHELL" = "/bin/zsh" ]]; then
+if [ "$SHELL" = "/bin/zsh" ]; then
 	echo "We are in ZSH. Activate new ~/.zshrc..."
 	source ~/.zshrc
 fi
