@@ -1,4 +1,4 @@
-#!$(which zsh)
+#!/usr/bin/env zsh
 # Use 
 #   git clone https://github.com/gatogatogato/shell ~/shell
 # before runnnig this script 
