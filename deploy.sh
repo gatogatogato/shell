@@ -31,9 +31,6 @@ echo "Copy generic stuff for all platforms..."
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
 echo ${DIVIDER}
-sh ${TARGET_DIR}/fix-tmux.sh
-
-echo ${DIVIDER}
 echo "Took ${SECONDS} seconds to deploy."
 echo "End of script."
 echo ${DIVIDER}
