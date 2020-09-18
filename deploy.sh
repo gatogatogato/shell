@@ -13,6 +13,6 @@ git pull origin master
 echo ${DIVIDER}
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 echo ${DIVIDER}
-echo "Took ${SECONDS} to deploy."
+echo "Took ${SECONDS} seconds to deploy."
 echo "End of script."
 echo ${DIVIDER}
