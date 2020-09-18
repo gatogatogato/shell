@@ -18,8 +18,6 @@ echo "Make shell files executable..."
 chmod +x ${TARGET_DIR}/*.sh
 echo ${DIVIDER}
 
-echo "Copy files..."
-
 case "${OS}" in
   *Linux*) 
 	echo "Copy specific stuff for Linux platform..." 
@@ -36,6 +34,7 @@ if [ "$SHELL" = "/bin/zsh" ]; then
 	echo "Use 'source ~/.zshrc' or log on to new shell instance to activate changes."
 fi
 
+echo ${DIVIDER}
 echo "Took ${SECONDS} seconds to deploy."
 echo "End of script."
 echo ${DIVIDER}
