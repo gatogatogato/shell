@@ -13,11 +13,10 @@ cd ${TARGET_DIR}
 echo "Update from GitHub..."
 git pull origin master -q
 echo ${DIVIDER}
-
 echo "Make shell files executable..."
 chmod +x ${TARGET_DIR}/*.sh
-echo ${DIVIDER}
 
+echo ${DIVIDER}
 case "${OS}" in
   *Linux*) 
 	echo "Copy specific stuff for Linux platform..." 
@@ -30,9 +29,8 @@ esac
 echo "Copy generic stuff for all platforms..." 
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
-if [ "$SHELL" = "/bin/zsh" ]; then
-	echo "Use 'source ~/.zshrc' or log on to new shell instance to activate changes."
-fi
+echo ${DIVIDER}
+sh ${TARGET_DIR}/fix-tmux.sh
 
 echo ${DIVIDER}
 echo "Took ${SECONDS} seconds to deploy."
