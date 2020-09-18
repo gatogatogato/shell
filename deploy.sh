@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Use 
-#   git clone https://github.com/gatogatogato/shell ~/shell
+#   cd && rm -rf ~/shell && git clone https://github.com/gatogatogato/shell ~/shell
 # before runnnig this script 
 export DIVIDER="---------------------------------------------------------"
 SECONDS=0
@@ -20,7 +20,7 @@ echo ${DIVIDER}
 echo "Copy files..."
 cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
-if [[ $SHELL -eq "/bin/zsh" ]]; then
+if [[ "$SHELL" = "/bin/zsh" ]]; then
 	echo "We are in ZSH. Activate new ~/.zshrc..."
 	source ~/.zshrc
 fi
