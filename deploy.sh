@@ -21,6 +21,7 @@ case "${OS}" in
   *Linux*) 
 	echo "Copy specific stuff for Linux platform..." 
 	cp ${TARGET_DIR}/update-debian.sh ~/update-debian.sh
+	cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/prepare-new-tk4-.sh
 	;;
   *Darwin*) 
 	echo "Copy specific stuff for MacOS platform..." 
