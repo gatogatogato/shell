@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 # Use 
-#   cd && rm -rf ~/shell && git clone https://github.com/gatogatogato/shell ~/shell
+#   cd && rm -rf ~/shell && git clone https://github.com/gatogatogato/shell ~/shell && zsh ~/shell/deploy.sh
 # before runnnig this script 
 export DIVIDER="---------------------------------------------------------"
 SECONDS=0
@@ -20,8 +20,9 @@ echo ${DIVIDER}
 case "${OS}" in
   *Linux*) 
 	echo "Copy specific stuff for Linux platform..." 
-	cp ${TARGET_DIR}/update-debian.sh ~/update-debian.sh
-	cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/prepare-new-tk4-.sh
+	cp ${TARGET_DIR}/update-debian.sh ~/
+	cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
+	cp ${TARGET_DIR}/mvs-tmux.sh ~/
 	;;
   *Darwin*) 
 	echo "Copy specific stuff for MacOS platform..." 
