@@ -9,6 +9,6 @@ sudo apt-get -qq full-upgrade
 
 echo "Install base packages via apt..."
 for PACKAGE in ${PACKAGES}; do
-	echo "  Install ${PACKAGE}..."
+	echo "##### Install ${PACKAGE}..."
 	sudo apt-get --yes -q install ${PACKAGE}
 done
