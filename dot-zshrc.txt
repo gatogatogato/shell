@@ -1,4 +1,13 @@
-alias ls='ls --color'
+OS=$(uname -a)
+
+case "${OS}" in
+  *Linux*) 
+	alias ls='ls --color'
+        ;;
+  *Darwin*) 
+        ;;
+esac
+
 alias ll="ls -G -l"
 alias la="ls -G -la"
 
