@@ -12,7 +12,7 @@ sudo apt-get -qq full-upgrade
 # for PACKAGE in ${PACKAGES}; do
 # done
 
-while IFS= read -r PACKAGE
+while read -r PACKAGE
 do
 	echo "##### Install ${PACKAGE}..."
 	sudo apt-get --yes -q install ${PACKAGE}
