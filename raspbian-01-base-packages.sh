@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 #---------------------------------------------------------------------------------------------------
 # PACKAGES="apt-transport-https ca-certificates curl debsums gnupg-agent hdparm hercules libglib2.0 mosh mutt nano net-tools nmap reboot-notifier software-properties-common tmux unzip wget"
-PACKAGES_FILE="~/shell/zz-raspbian-base-packages.txt"
+PACKAGES_FILE="~pi/shell/zz-raspbian-base-packages.txt"
 #---------------------------------------------------------------------------------------------------
 echo "Update apt database and packages..."
 sudo apt-get -qq update
