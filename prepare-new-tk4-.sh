@@ -51,7 +51,7 @@ cd ${installdir}
 mkdir brexx
 echo "Download ${download_server_brexx}${zip_file_brexx}..."
 cd brexx
-wcget -q ${download_server_brexx}${zip_file_brexx}
+wget -q ${download_server_brexx}${zip_file_brexx}
 echo "Unzip ${zip_file_brexx}..."
 unzip -q ${zip_file_brexx}
 rm ${zip_file_brexx}
