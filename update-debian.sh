@@ -1,10 +1,10 @@
 #!/bin/zsh
 SECONDS=0
 echo "---------------------------------------------------"
-sudo apt --yes update
-sudo apt --yes full-upgrade
-sudo apt --yes autoclean
-sudo apt --yes autoremove
+sudo apt-get --yes update
+sudo apt-get --yes full-upgrade
+sudo apt-get --yes autoclean
+sudo apt-get --yes autoremove
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
 echo "---------------------------------------------------"
