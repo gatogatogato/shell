@@ -2,6 +2,7 @@
 # Use 
 #   cd && rm -rf ~/shell && git clone https://github.com/gatogatogato/shell ~/shell && zsh ~/shell/deploy.sh
 # before runnnig this script 
+
 export DIVIDER="---------------------------------------------------------"
 SECONDS=0
 TARGET_DIR=~/shell
