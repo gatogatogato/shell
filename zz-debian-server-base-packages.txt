@@ -1,0 +1,31 @@
+apt-transport-https 
+ca-certificates
+curl
+debsums 
+default-mysql-server
+fail2ban
+fcheck 
+ftp
+gnupg-agent 
+imagemagick exiftool
+iptables
+libapache2-mod-php
+libglib2.0
+logcheck 
+logcheck-database
+mosh
+net-tools 
+php
+php-curl 
+php-mysql
+php-pear
+python-certbot-apache 
+reboot-notifier
+rkhunter
+ruby rubygems ruby-ffi
+software-properties-common
+tiger 
+tmux 
+unzip 
+vsftpd 
+wget
