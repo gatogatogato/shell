@@ -19,9 +19,13 @@ echo "Make shell files executable..."
 chmod +x ${TARGET_DIR}/*.sh
 
 echo ${DIVIDER}
+
+echo "Copy generic stuff for all platforms..." 
+cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
+
 case "${OS}" in
   *Linux*)
-	echo "Copy specific stuff for all Linux platforms..." 
+	echo "Copy generic stuff for all Linux platforms..." 
 	cp ${TARGET_DIR}/update-debian.sh ~/
 	if [[ ${PRETTY_NAME} =~ "Raspbian" ]]; 	then
 		echo "Copy specific stuff for Raspbian platform..." 
@@ -37,8 +41,6 @@ case "${OS}" in
 	echo "Copy specific stuff for MacOS platform..." 
 	;;
 esac
-echo "Copy generic stuff for all platforms..." 
-cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
 
 echo ${DIVIDER}
 echo "Took ${SECONDS} seconds to deploy."
