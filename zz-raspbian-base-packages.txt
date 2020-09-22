@@ -4,8 +4,8 @@ curl
 debsums
 gnupg-agent
 hdparm
-htop
 hercules
+htop
 libglib2.0 
 mosh 
 mutt 
