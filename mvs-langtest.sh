@@ -1,19 +1,20 @@
 #!/bin/zsh
 #-----------------------------------------------------------------
-export installdir=~pi
+export installdir=~pi/tk4-
 #-----------------------------------------------------------------
 echo "Build langtest for performance testing..."
 cd ${installdir}
 
 git clone "https://github.com/wfjm/mvs38j-langtest"
-mv mvs38j-langtest mvs38jlang
-export PATH=${PATH}:${installdir}/mvs38jlang/bin
+git clone "https://github.com/wfjm/herc-tools"
+
+export PATH=${PATH}:${installdir}/herc-tools/bin
 
 
 clear
-echo "--------------------------------"
-echo " Next adapt the JCL defaults    "
-echo "--------------------------------"
+echo "--------------------------------------------"
+echo " Next adapt the JCL defaults manually first "
+echo "--------------------------------------------"
 echo ""
 echo "Press enter to continue..."
 read
@@ -24,10 +25,10 @@ make
 
 
 clear
-echo "--------------------------------"
-echo " Submit JCL with                "
-echo "   hercjis *asm*.jcl            "
-echo "--------------------------------"
+echo "--------------------------------------------"
+echo " Submit JCL with                            "
+echo "   hercjis *asm*.jcl                        "
+echo "--------------------------------------------"
 echo ""
 echo "Press enter to continue..."
 read
