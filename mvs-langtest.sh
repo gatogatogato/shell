@@ -6,6 +6,9 @@ export PATH=${PATH}:${installdir}/herc-tools/bin
 echo "Build langtest for performance testing..."
 
 cd ${installdir}
+rm -rf mvs38j-langtest
+rm -rf herc-tools
+
 git clone "https://github.com/wfjm/mvs38j-langtest"
 git clone "https://github.com/wfjm/herc-tools"
 
@@ -18,6 +21,6 @@ cd ${installdir}/mvs38j-langtest/jobs/
 make
 
 echo "--------------------------------------------"
-echo " Run tests JCL with                            "
-echo "   ${installdir}/herc-tools/bin/hercjis ${installdir}/tk4-/mvs38j-langtest/jobs/*asm*.jcl  "
+echo " Run tests JCL e.g. with                    "
+echo "   ${installdir}/herc-tools/bin/hercjis ${installdir}/mvs38j-langtest/jobs/*asm*.jcl  "
 echo "--------------------------------------------"
