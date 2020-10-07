@@ -35,8 +35,12 @@ echo "CONSOLE" > ${installdir}/unattended/mode
 echo "Change execution shell to ZSH..."
 sed --in-place=.old -e 's=/bin/bash=/bin/zsh=g' ${installdir}/mvs
 
-echo "Change FTP Server on MVS to start automatically on port..."
+echo "Change FTP Server on MVS to start automatically..."
 echo "/S FTPD,SRVPORT=21021" >> ${installdir}/local_scripts/10
+
+echo "Change FTP Server on MVS to stop automatically..."
+echo "/P FTPD" >> ${installdir}/scripts/shutdown
+
 
 cd ${installdir}
 mkdir kicks
