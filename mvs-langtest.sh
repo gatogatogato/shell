@@ -10,7 +10,6 @@ git clone "https://github.com/wfjm/herc-tools"
 
 export PATH=${PATH}:${installdir}/herc-tools/bin
 
-
 clear
 echo "--------------------------------------------"
 echo " Next adapt the JCL defaults manually first "
@@ -18,9 +17,9 @@ echo "--------------------------------------------"
 echo ""
 echo "Press enter to continue..."
 read
-cd ${installdir}/mvs38jlang/jcl
+cd ${installdir}/mvs38j-langtest/jcl
 nano job_asm_clg.JESI
-cd ${installdir}/mvs38jlang/jobs
+cd ${installdir}/mvs38j-langtest/jobs
 make
 
 
