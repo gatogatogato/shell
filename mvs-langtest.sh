@@ -17,15 +17,7 @@ echo "Build JCL..."
 cd ${installdir}/mvs38j-langtest/jobs/
 make
 
-
-
 echo "--------------------------------------------"
-echo " Remember to export PATH to                 "
-echo " export PATH=${PATH}:${installdir}/herc-tools/bin"
+echo " Run tests JCL with                            "
+echo "   ${installdir}/herc-tools/bin/hercjis ${installdir}/tk4-/mvs38j-langtest/jobs/*asm*.jcl  "
 echo "--------------------------------------------"
-echo " Submit JCL with                            "
-echo "   hercjis *asm*.jcl                        "
-echo "--------------------------------------------"
-echo ""
-echo "Press enter to continue..."
-read
