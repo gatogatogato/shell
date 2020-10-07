@@ -10,7 +10,9 @@ rm -rf mvs38j-langtest
 rm -rf herc-tools
 
 git clone "https://github.com/wfjm/mvs38j-langtest"
+cd mvs38j-langtest
 git clone "https://github.com/wfjm/herc-tools"
+git clone "https://github.com/wfjm/mvs38j-sios"
 
 echo "Change job names..."
 sed --in-place=.old -e 's=${JOB}=HERC01JX=g' ${installdir}/mvs38j-langtest/jcl/*.JESI
