@@ -1,14 +1,14 @@
 #!/bin/zsh
 #-----------------------------------------------------------------
-export installdir=~/tk4-
+export installdir=~pi
 #-----------------------------------------------------------------
 echo "Build langtest for performance testing..."
 cd ${installdir}
 
 git clone "https://github.com/wfjm/mvs38j-langtest"
 mv mvs38j-langtest mvs38jlang
+export PATH=${PATH}:${installdir}/mvs38jlang/bin
 
-export PATH=${PATH};${installdir}/mvs38jlang/bin
 
 clear
 echo "--------------------------------"
