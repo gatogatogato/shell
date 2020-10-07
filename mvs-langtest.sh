@@ -1,16 +1,14 @@
 #!/bin/zsh
 #-----------------------------------------------------------------
-export installdir=~pi/tk4-
+export installdir=~/
 export PATH=${PATH}:${installdir}/herc-tools/bin
 #-----------------------------------------------------------------
 echo "Build langtest for performance testing..."
 
 cd ${installdir}
-rm -rf mvs38j-langtest
-rm -rf herc-tools
 
 git clone "https://github.com/wfjm/mvs38j-langtest"
-cd mvs38j-langtest
+cd ${installdir}/mvs38j-langtest
 git clone "https://github.com/wfjm/herc-tools"
 git clone "https://github.com/wfjm/mvs38j-sios"
 
