@@ -23,6 +23,8 @@ cd ${installdir}/mvs38j-langtest/jobs/
 make
 
 echo "--------------------------------------------"
+echo " MVS 3.8 must be running!!                  "
+echo "--------------------------------------------"
 echo " Run tests JCL e.g. with                    "
-echo "   ${installdir}/herc-tools/bin/hercjis ${installdir}/mvs38j-langtest/jobs/*asm*.jcl  "
+echo "   ${installdir}/mvs38j-langtest/herc-tools/bin/hercjis ${installdir}/mvs38j-langtest/jobs/*asm*.jcl  "
 echo "--------------------------------------------"
