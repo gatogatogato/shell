@@ -11,3 +11,13 @@ git clone https://github.com/sherlock-project/sherlock.git
 cd sherlock
 python3 -m pip install -r requirements.txt
 python3 sherlock gato-gato-gato
+echo "Run with 'python3 sherlock gato-gato-gato'"
+
+#Install Harvester
+cd ~/hAxx0r
+rm -rf theHarvester
+git clone https://github.com/laramies/theHarvester 
+cd theHarvester
+python3 -m pip install -r requirements/base.txt
+python3 theHarvester.py -h
+echo "Run with 'python3 theHarvester.py -h'"
