@@ -29,3 +29,4 @@ tmux
 unzip 
 vsftpd 
 wget
+sa-exim
