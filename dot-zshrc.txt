@@ -5,6 +5,8 @@ case "${OS}" in
 	alias ls='ls --color'
         ;;
   *Darwin*) 
+	PATH=$PATH:/opt/homebrew/bin
+	export EDITOR=/usr/bin/nano
         ;;
 esac
 
