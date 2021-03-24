@@ -6,7 +6,7 @@ case "${OS}" in
         ;;
   *Darwin*) 
 	PATH=$PATH:/opt/homebrew/bin
-	export EDITOR=/usr/bin/nano
+	export EDITOR=nano
         ;;
 esac
 
