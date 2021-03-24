@@ -6,7 +6,6 @@ case "${OS}" in
         ;;
   *Darwin*) 
 	PATH=$PATH:/opt/homebrew/bin
-	export EDITOR=nano
         ;;
 esac
 
@@ -28,4 +27,5 @@ HISTFILE=${ZDOTDIR:-$HOME}/.zsh_history
 HISTSIZE=1000
 SAVEHIST=1000
 
+export EDITOR=nano
 export PS1="%B%n@%m%b %d %(!.%F{red}#.%F{yellow}>)%f "
