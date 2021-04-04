@@ -5,8 +5,11 @@ case "${OS}" in
 	alias ls='ls --color'
         ;;
   *Darwin*) 
-	PATH=$PATH:/opt/homebrew/bin
-        ;;
+	PATH=/opt/homebrew/opt/ruby/bin:$PATH:/opt/homebrew/bin
+	export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
+	export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
+	export PKG_CONFIG_PATH="/opt/homebrew/opt/ruby/lib/pkgconfig"
+    ;;
 esac
 
 alias ll="ls -G -l"
