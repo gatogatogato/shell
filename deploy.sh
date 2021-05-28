@@ -40,7 +40,8 @@ case "${OS}" in
 	fi
 	;;
   *Darwin*) 
-	echo "Copy specific stuff for MacOS platform..." 
+	echo "Copy specific stuff for MacOS platform..."
+	cp ${TARGET_DIR}/homebrew-setup.sh ~/
 	;;
 esac
 
