@@ -44,6 +44,7 @@ brew install --cask 1Password
 brew install --cask Dropbox
 brew install --cask coconutbattery
 brew install --cask arq
+brew install --cask Firefox
 
 #---------------------------------------------------------------------------------------------------
 echo "End of script."
