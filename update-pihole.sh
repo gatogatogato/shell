@@ -2,6 +2,10 @@
 SECONDS=0
 PIHOLE_BASE=/home/pi/pihole-data
 echo "---------------------------------------------------"
+
+echo "Pull latest blocklists"
+docker exec pihole pihole updateGravity
+
 echo "Pull latest PiHole"
 docker pull pihole/pihole:latest
 
@@ -29,6 +33,9 @@ sleep 10
 
 echo "Set password for admin interface"
 docker exec -it pihole pihole -a -p Nq6owAdprdst9tcYCFQLxLPfYkX3prBaqLionkYW
+
+echo "Pull latest blocklists"
+docker exec pihole pihole updateGravity
 
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
