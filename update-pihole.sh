@@ -1,54 +1,52 @@
 #!/bin/zsh
 SECONDS=0
-PIHOLE_BASE=/home/pi/pihole-data
-echo "---------------------------------------------------"
+PIHOLE_COMPOSE_FILE=/tmp/docker-compose-pihole.yml
+ALL_LINES=$(cat <<'END_HEREDOC'
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+version: "3"
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+services:
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "8001:80/tcp"
+    environment:
+      TZ: 'America/Chicago'
+      WEBPASSWORD: 'Nq6owAdprdst9tcYCFQLxLPfYkX3prBaqLionkYW'
+      VIRTUAL_HOST: "pi.hole"
+      PROXY_LOCATION: "pi.hole"
+      ServerIP: "127.0.0.1"
+    # Volumes store your data between container upgrades
+    volumes:
+      - './pihole-data/etc-pihole/:/etc/pihole/'
+      - './pihole-data/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    # Recommended but not required (DHCP needs NET_ADMIN)
+    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    dns: 127.0.0.1
+    dns: 1.1.1.1
+    hostname: pi.hole
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+END_HEREDOC
+)
+echo "$ALL_LINES" > ${PIHOLE_COMPOSE_FILE}
 
-echo "Pull latest blocklists"
-docker exec pihole pihole updateGravity
+echo "---------------------------------------------------"
 
 echo "Pull latest PiHole"
 docker pull pihole/pihole:latest
 
-echo "Remove current PiHole"
-docker rm -f pihole
+echo "Docker compose according to compose file"
+docker-compose --file ${PIHOLE_COMPOSE_FILE} up --detach
 
-echo "Start new container from latest image"
-docker run -d \
---name pihole \
--p 53:53/tcp -p 53:53/udp \
--p 8001:80 \
--e TZ="Switzerland/Zurich" \
--v "${PIHOLE_BASE}/etc-pihole/:/etc/pihole/" \
--v "${PIHOLE_BASE}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
---dns=127.0.0.1 --dns=1.1.1.1 \
---restart=unless-stopped \
---hostname pi.hole \
--e VIRTUAL_HOST="pi.hole" \
--e PROXY_LOCATION="pi.hole" \
--e ServerIP="127.0.0.1" \
-pihole/pihole:latest
-
-echo "Wait for startup..."
-for i in $(seq 1 20); do
-    if [ "$(docker inspect -f "{{.State.Health.Status}}" pihole)" = "healthy" ] ; then
-        printf ' OK'
-		echo "Set password for admin interface"
-		docker exec -it pihole pihole -a -p Nq6owAdprdst9tcYCFQLxLPfYkX3prBaqLionkYW
-        echo -e "\n$(docker logs pihole 2> /dev/null | grep 'password:') for your pi-hole: https://${IP}/admin/"
-
-		echo "Pull latest blocklists"
-		docker exec pihole pihole updateGravity
-        exit 0
-    else
-        sleep 3
-        printf '.'
-    fi
-
-    if [ $i -eq 20 ] ; then
-        echo -e "\nTimed out waiting for Pi-hole start, consult your container logs for more info (\`docker logs pihole\`)"
-        exit 1
-    fi
-done;
+echo "Pull latest blocklists"
+docker exec pihole pihole updateGravity
 
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
