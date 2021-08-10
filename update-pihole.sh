@@ -20,10 +20,11 @@ services:
       VIRTUAL_HOST: "pi.hole"
       PROXY_LOCATION: "pi.hole"
       ServerIP: "127.0.0.1"
+      DNSMASQ_LISTENING: "all"
     # Volumes store your data between container upgrades
     volumes:
-      - './pihole-data/etc-pihole/:/etc/pihole/'
-      - './pihole-data/etc-dnsmasq.d/:/etc/dnsmasq.d/'
+      - '/home/pi/pihole-data/etc-pihole/:/etc/pihole/'
+      - '/home/pi/pihole-data/etc-dnsmasq.d/:/etc/dnsmasq.d/'
     # Recommended but not required (DHCP needs NET_ADMIN)
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
