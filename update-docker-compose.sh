@@ -46,6 +46,15 @@ services:
       - 443:443
     restart: unless-stopped
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  nginx:
+    image: nginx/nginx:latest
+    container_name: nginx
+    volumes:
+      - /home/pi/dockerData/nginx-data/:/usr/share/nginx/html
+    ports:
+      - 8000:80
+    restart: unless-stopped
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
 echo "$ALL_LINES" > ${COMPOSE_FILE}
