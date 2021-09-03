@@ -30,7 +30,7 @@ case "${OS}" in
 	cp ${TARGET_DIR}/README.txt ~/shell-clone-command.txt
 	if [[ ${PRETTY_NAME} =~ "Raspbian" ]]; 	then
 		echo "Copy specific stuff for Raspbian platform..." 
-		cp ${TARGET_DIR}/update-pihole.sh ~/
+		cp ${TARGET_DIR}/update-docker-compose.sh ~/
 		cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
 		cp ${TARGET_DIR}/mvs-tmux.sh ~/
 		cp ${TARGET_DIR}/mvs-langtest.sh ~/
