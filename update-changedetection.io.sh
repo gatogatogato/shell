@@ -10,10 +10,12 @@ services:
     image: dgtlmoon/changedetection.io
     hostname: changedetection.io
     volumes:
-      - '/home/pi/changedetection-data/:/datastore'
+      - changedetection-data:/datastore
     ports:
       - "5000:5000/tcp"
     restart: unless-stopped
+volumes:
+  changedetection-data:
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
