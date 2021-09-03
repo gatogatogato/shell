@@ -47,8 +47,8 @@ services:
     restart: unless-stopped
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   nginx:
-    image: nginx
-    container_name: nginx:latest
+    image: nginx:latest
+    container_name: nginx
     volumes:
       - /home/pi/dockerData/nginx-data/:/usr/share/nginx/html
     ports:
