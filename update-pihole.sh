@@ -15,7 +15,7 @@ services:
       - "67:67/udp"
       - "8001:80/tcp"
     environment:
-      TZ: 'America/Chicago'
+      TZ: 'Europe/Berlin'
       WEBPASSWORD: 'Nq6owAdprdst9tcYCFQLxLPfYkX3prBaqLionkYW'
       VIRTUAL_HOST: "pi.hole"
       PROXY_LOCATION: "pi.hole"
@@ -23,16 +23,28 @@ services:
       DNSMASQ_LISTENING: "all"
     # Volumes store your data between container upgrades
     volumes:
-      - '/home/pi/pihole-data/etc-pihole/:/etc/pihole/'
-      - '/home/pi/pihole-data/etc-dnsmasq.d/:/etc/dnsmasq.d/'
-    # Recommended but not required (DHCP needs NET_ADMIN)
-    #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+      - '/home/pi/dockerData/pihole-data/etc-pihole/:/etc/pihole/'
+      - '/home/pi/dockerData/pihole-data/etc-dnsmasq.d/:/etc/dnsmasq.d/'
     cap_add:
       - NET_ADMIN
     restart: unless-stopped
     dns: 127.0.0.1
     dns: 1.1.1.1
     hostname: pi.hole
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  heimdall:
+    image: ghcr.io/linuxserver/heimdall
+    container_name: heimdall
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Berlin
+    volumes:
+      - /home/pi/dockerData/heimdall-data/:/config
+    ports:
+      - 80:80
+      - 443:443
+    restart: unless-stopped
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
@@ -41,7 +53,8 @@ echo "$ALL_LINES" > ${COMPOSE_FILE}
 echo "---------------------------------------------------"
 
 echo "Pull latest PiHole"
-docker pull pihole/pihole:latest
+#docker pull pihole/pihole:latest
+docker-compose --file ${COMPOSE_FILE}
 
 echo "Docker compose according to compose file"
 docker-compose --file ${COMPOSE_FILE} up --detach
