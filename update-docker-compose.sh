@@ -60,7 +60,6 @@ services:
     container_name: portainer
     environment:
       - TZ=Europe/Berlin
-    command: --admin-password "CewzzNufAehMhbyNbN8mMTEm6YvoAi"
     volumes:
       - /home/pi/dockerData/portainer-data/:/data
       - /var/run/docker.sock:/var/run/docker.sock
