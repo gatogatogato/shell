@@ -1,6 +1,6 @@
 #!/bin/zsh
 SECONDS=0
-COMPOSE_FILE=/tmp/docker-compose-pihole.yml
+COMPOSE_FILE=/tmp/docker-compose-all.yml
 ALL_LINES=$(cat <<'END_HEREDOC'
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 version: "3"
@@ -52,7 +52,7 @@ echo "$ALL_LINES" > ${COMPOSE_FILE}
 
 echo "---------------------------------------------------"
 
-echo "Pull latest PiHole"
+echo "Pull latest images"
 #docker pull pihole/pihole:latest
 docker-compose --file ${COMPOSE_FILE}
 
