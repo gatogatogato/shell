@@ -63,7 +63,7 @@ echo "---------------------------------------------------"
 
 echo "Pull latest images"
 #docker pull pihole/pihole:latest
-docker-compose --file ${COMPOSE_FILE}
+docker-compose --file ${COMPOSE_FILE} pull
 
 echo "Docker compose according to compose file"
 docker-compose --file ${COMPOSE_FILE} up --detach
