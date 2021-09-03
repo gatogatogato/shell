@@ -67,21 +67,6 @@ services:
       - 9000:9000
     restart: always
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  adguardhome:
-    image: adguard/adguardhome
-    container_name: adguardhome
-    ports:
-      - 11153:53/tcp
-      - 11153:53/udp
-      - 853:853/tcp
-      - 3000:3000/tcp
-      - 8002:80/tcp
-      - 8443:443/tcp
-    volumes:
-      - /home/pi/dockerData/adguard-data/work:/opt/adguardhome/work
-      - /home/pi/dockerData/adguard-data/config:/opt/adguardhome/conf
-    restart: unless-stopped
-#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
 echo "$ALL_LINES" > ${COMPOSE_FILE}
