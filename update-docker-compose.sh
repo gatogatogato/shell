@@ -81,7 +81,7 @@ END_HEREDOC
 )
 echo "$ALL_LINES" > ${COMPOSE_FILE}
 
-docker run --rm httpd:2.4-alpine htpasswd -nbB admin "${PORTAINER_PASSWORD}" | cut -d ":" -f 2 > ${PORTAINER_PASSWORD_FILE}
+docker run --rm httpd:2.4-alpine htpasswd -nbB admin 'ZPqcNM2v6Gnx8Q7ygbVF' | cut -d ":" -f 2 > ${PORTAINER_PASSWORD_FILE}
 
 echo "---------------------------------------------------"
 
