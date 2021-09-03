@@ -72,9 +72,8 @@ END_HEREDOC
 echo "$ALL_LINES" > ${COMPOSE_FILE}
 
 echo "---------------------------------------------------"
-
+echo "Docker compose file: ${COMPOSE_FILE}"
 echo "Pull latest images"
-#docker pull pihole/pihole:latest
 docker-compose --file ${COMPOSE_FILE} pull
 
 echo "Docker compose according to compose file"
