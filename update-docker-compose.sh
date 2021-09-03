@@ -1,9 +1,6 @@
 #!/bin/zsh
 SECONDS=0
 COMPOSE_FILE=/tmp/docker-compose-all.yml
-PORTAINER_PASSWORD_FILE=/tmp/portainer-password.txt
-PORTAINER_PASSWORD=ZPqcNM2v6Gnx8Q7ygbVF
-PIHOLE_PASSWORD=Nq6owAdprdst9tcYCFQLxLPfYkX3prBaqLionkYW
 ALL_LINES=$(cat <<'END_HEREDOC'
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 version: "3"
@@ -68,7 +65,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 9000:9000
-    command: --admin-password-file /tmp/portainer-password.txt
     restart: always
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   watchtower:
@@ -80,8 +76,6 @@ services:
 END_HEREDOC
 )
 echo "$ALL_LINES" > ${COMPOSE_FILE}
-
-docker run --rm httpd:2.4-alpine htpasswd -nbB admin 'ZPqcNM2v6Gnx8Q7ygbVF' | cut -d ":" -f 2 > ${PORTAINER_PASSWORD_FILE}
 
 echo "---------------------------------------------------"
 
