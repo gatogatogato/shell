@@ -48,7 +48,7 @@ services:
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   nginx:
     image: nginx
-    container_name: nginx
+    container_name: nginx:latest
     volumes:
       - /home/pi/dockerData/nginx-data/:/usr/share/nginx/html
     ports:
