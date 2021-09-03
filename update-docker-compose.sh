@@ -68,9 +68,6 @@ docker-compose --file ${COMPOSE_FILE} pull
 echo "Docker compose according to compose file"
 docker-compose --file ${COMPOSE_FILE} up --detach
 
-echo "Pull latest blocklists"
-docker exec pihole pihole updateGravity
-
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
 echo "---------------------------------------------------"
