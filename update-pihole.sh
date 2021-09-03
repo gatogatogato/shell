@@ -1,6 +1,6 @@
 #!/bin/zsh
 SECONDS=0
-PIHOLE_COMPOSE_FILE=/tmp/docker-compose-pihole.yml
+COMPOSE_FILE=/tmp/docker-compose-pihole.yml
 ALL_LINES=$(cat <<'END_HEREDOC'
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 version: "3"
@@ -36,7 +36,7 @@ services:
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
-echo "$ALL_LINES" > ${PIHOLE_COMPOSE_FILE}
+echo "$ALL_LINES" > ${COMPOSE_FILE}
 
 echo "---------------------------------------------------"
 
@@ -44,7 +44,7 @@ echo "Pull latest PiHole"
 docker pull pihole/pihole:latest
 
 echo "Docker compose according to compose file"
-docker-compose --file ${PIHOLE_COMPOSE_FILE} up --detach
+docker-compose --file ${COMPOSE_FILE} up --detach
 
 echo "Pull latest blocklists"
 docker exec pihole pihole updateGravity
