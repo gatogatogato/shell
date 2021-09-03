@@ -67,6 +67,18 @@ services:
       - 9000:9000
     restart: always
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  changedetection.io:
+    image: dgtlmoon/changedetection.io
+    container_name: changedetection.io
+    hostname: changedetection.io
+    environment:
+      - TZ=Europe/Berlin
+    volumes:
+      - /home/pi/dockerData/changedetection-data:/datastore
+    ports:
+      - 5000:5000
+    restart: unless-stopped
+#////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
 echo "$ALL_LINES" > ${COMPOSE_FILE}
