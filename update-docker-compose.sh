@@ -68,7 +68,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 9000:9000
-    command: --admin-password-file ${PORTAINER_PASSWORD_FILE}
+    command: --admin-password-file /tmp/portainer-password.txt
     restart: always
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   watchtower:
