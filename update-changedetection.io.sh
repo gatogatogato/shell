@@ -7,7 +7,7 @@ version: "3"
 services:
   changedetection.io:
     container_name: changedetection.io
-    image: dgtlmoon/changedetection.io
+    image: dgtlmoon/changedetection.io:latest
     hostname: changedetection.io
     volumes:
       - changedetection-data:/datastore
