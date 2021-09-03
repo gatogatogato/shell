@@ -77,7 +77,6 @@ services:
       - 3000:3000/tcp
       - 8002:80/tcp
       - 8443:443/tcp
-    bind_host: 127.0.0.1
     volumes:
       - /home/pi/dockerData/adguard-data/work:/opt/adguardhome/work
       - /home/pi/dockerData/adguard-data/config:/opt/adguardhome/conf
