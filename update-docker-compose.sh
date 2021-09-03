@@ -60,13 +60,13 @@ services:
     container_name: portainer
     environment:
       - TZ=Europe/Berlin
+      - admin-password: "CewzzNufAehMhbyNbN8mMTEm6YvoAi"
     volumes:
       - /home/pi/dockerData/portainer-data/:/data
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - 9000:9000
     restart: always
-    admin-password: "CewzzNufAehMhbyNbN8mMTEm6YvoAi"
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   watchtower:
     image: containrrr/watchtower 
