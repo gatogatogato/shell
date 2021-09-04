@@ -40,7 +40,7 @@ services:
       - PGID=1000
       - TZ=Europe/Berlin
     volumes:
-      - /home/pi/dockerData/heimdall-data/:/config
+      - /home/pi/dockerData/heimdall-data/config:/config
     ports:
       - 80:80
       - 443:443
@@ -50,7 +50,7 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - /home/pi/dockerData/nginx-data/:/usr/share/nginx/html
+      - /home/pi/dockerData/nginx-data/html:/usr/share/nginx/html
     ports:
       - 8000:80
     restart: unless-stopped
