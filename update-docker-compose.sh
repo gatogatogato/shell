@@ -96,7 +96,7 @@ services:
     restart: unless-stopped
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   couchpotato:
-    image: ghcr.io/linuxserver/couchpotato
+    image: ghcr.io/linuxserver/couchpotato:armhf
     container_name: couchpotato
     environment:
       - PUID=1000
