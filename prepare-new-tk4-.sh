@@ -21,12 +21,11 @@ wget -q ${download_server_tk4}${zip_file_tk4}
 echo "Unzip ${zip_file_tk4}..."
 unzip -q ${zip_file_tk4} && rm ${zip_file_tk4}
 
-echo "Delete Windows installation files to save some space..."
-rm -rf ${installdir}/hercules/windows/
-echo "Delete Windows batch files..."
+echo "Delete misc. files to save some space..."
 find . -name "*.bat" -type f -delete
-echo "Delete OSX installation files to save some space..."
+rm -rf ${installdir}/hercules/windows/
 rm -rf ${installdir}/hercules/darwin/
+rm -rf ${installdir}/hercules/source/
 
 echo "Set default run mode to CONSOLE..."
 echo "CONSOLE" > ${installdir}/unattended/mode
