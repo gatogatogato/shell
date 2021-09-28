@@ -58,4 +58,9 @@ echo "Unzip ${zip_file_brexx}..."
 unzip -q ${zip_file_brexx}
 rm ${zip_file_brexx}
 
+cd ${installdir}
+echo "Download NETSOL stuff for Network Solicitor graphics..."
+git clone https://github.com/MVS-sysgen/NETSOL.git
+cd NETSOL
+
 echo "Finished."
