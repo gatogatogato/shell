@@ -26,6 +26,7 @@ brew install "topgrade"
 brew install "htop"
 brew install "zsh-completions"
 brew install "bash-completion"
+brew install "netcat"
 
 #---------------------------------------------------------------------------------------------------
 echo "Install desktop apps from brew ..."
