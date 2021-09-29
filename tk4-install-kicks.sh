@@ -58,7 +58,7 @@ echo " "
 curl -s -d "command=devinit+010c+/home/pi/tk4-/kicks/kicks-tso-v1r5m0/kicks-tso-v1r5m0.xmi" -X POST http://${HERC_DNS}:${HERC_SYSLOG_PORT}/cgi-bin/tasks/syslog -o /dev/null
 #----------------------------------------------------------------------------
 cat ${JCL_FILE_01} | netcat -w1 ${HERC_DNS} ${HERC_READER_PORT}
-sleep 30
+sleep 60
 cat ${JCL_FILE_02} | netcat -w1 ${HERC_DNS} ${HERC_READER_PORT}
 #----------------------------------------------------------------------------
 echo "Sending the following commands to the Hercules console"
