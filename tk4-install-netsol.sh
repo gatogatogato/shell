@@ -35,8 +35,10 @@ HERC_READER_PORT=3505
 HERC_SYSLOG_PORT=8038
 echo "Submitting JCL..."
 cat ${JCLFILE} | netcat -w1 ${HERC_DNS} ${HERC_READER_PORT}
+sleep 3
 echo "Stopping TSO..."
 curl -s -d "command=/P+TSO" -X POST http://${HERC_DNS}:${HERC_SYSLOG_PORT}/cgi-bin/tasks/syslog -o /dev/null
+sleep 3
 echo "Stopping VTAM..."
 curl -s -d "command=/Z+NET,QUICK" -X POST http://${HERC_DNS}:${HERC_SYSLOG_PORT}/cgi-bin/tasks/syslog -o /dev/null
 sleep 10
