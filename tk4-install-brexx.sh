@@ -45,8 +45,8 @@ echo "$ALL_LINES_01" > ${JCL_FILE_01}
 echo "$ALL_LINES_02" > ${JCL_FILE_02}
 #------------------------------------------------------------------------------------
 echo "DISCLAIMER"
-echo "  This script should be run immediately after TK4- was set up."
-echo "  This script can only be run when Hercules/TK4- is running."
+echo "  This script should be run immediately after tk4- was set up."
+echo "  This script can only be run when Hercules/tk4- is running."
 echo "  This script should be run on raspberrypi or on MacOS."
 echo "Press enter to continue..."
 read
