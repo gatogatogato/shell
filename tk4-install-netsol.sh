@@ -41,6 +41,7 @@ END_HEREDOC
   echo "#!/bin/zsh"         >  install-${JCLFILE}.sh
   echo "JCLFILE=${JCLFILE}" >> install-${JCLFILE}.sh
   echo ${SCRIPT_LINES}      >> install-${JCLFILE}.sh
+  chmod +x install-${JCLFILE}.sh
 done
 echo "You can use the install-*.sh scripts to install any network solicitor"
 rm ${JOBCARD}
