@@ -13,6 +13,7 @@ DEL_LINES=5
 #------------------------------------------------------------------------------------
 echo "Clone NETSOL JCLs from GitHub..."
 cd ${INSTALLDIR}
+rm -rf NETSOL
 git clone https://github.com/MVS-sysgen/NETSOL.git
 cd NETSOL
 #------------------------------------------------------------------------------------
