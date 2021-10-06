@@ -17,7 +17,7 @@ read
 #---------------------------------------------------------------------------------------------------
 echo "Install basic stuff from brew ..."
 brew install "imagemagick"
-brew install "youtube-dl"
+brew install "yt-dlp"
 brew install "exiftool"
 brew install "nmap"
 brew install "ffmpeg"
