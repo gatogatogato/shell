@@ -27,6 +27,8 @@ brew install "htop"
 brew install "zsh-completions"
 brew install "bash-completion"
 brew install "netcat"
+brew install "micro"
+brew install "qemu"
 
 #---------------------------------------------------------------------------------------------------
 echo "Install desktop apps from brew ..."
