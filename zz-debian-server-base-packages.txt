@@ -15,6 +15,7 @@ libglib2.0
 libnet-ssleay-perl
 logcheck
 logcheck-database
+micro
 mosh
 mutt
 net-tools
