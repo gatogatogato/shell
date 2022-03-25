@@ -29,6 +29,7 @@ brew install "bash-completion"
 brew install "netcat"
 brew install "micro"
 brew install "qemu"
+brew install "watch"
 brew install "wget"
 
 #---------------------------------------------------------------------------------------------------
