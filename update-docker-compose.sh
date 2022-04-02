@@ -8,7 +8,8 @@ version: "3"
 services:
   pihole:
     container_name: pihole
-    image: pihole/pihole:latest
+    #image: pihole/pihole:latest
+    image: pihole/pihole:2022.02.1
     ports:
       - "53:53/tcp"
       - "53:53/udp"
