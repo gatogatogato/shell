@@ -3,16 +3,15 @@ ca-certificates
 curl
 debsums
 default-mysql-server
-exim4-daemon-heavy
+exiftool
 fail2ban
 fcheck
 ftp
 gnupg-agent
-imagemagick exiftool
+imagemagick
 iptables
 libapache2-mod-php
 libglib2.0
-libnet-ssleay-perl
 logcheck
 logcheck-database
 micro
@@ -27,13 +26,9 @@ python-certbot-apache
 reboot-notifier
 rkhunter
 ruby
-rubygems
 ruby-ffi
-sa-exim
+rubygems
 software-properties-common
-spamassassin
-spf-tools-perl
-swaks
 tiger
 tmux
 unzip
