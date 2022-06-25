@@ -1,10 +1,8 @@
 #!/bin/zsh
 SECONDS=0
 echo "---------------------------------------------------"
-
-echo "Pull latest pihole blocklists"
-docker exec pihole pihole updateGravity
-
+pihole -up
+pihole -g
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
 echo "---------------------------------------------------"
