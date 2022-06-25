@@ -3,7 +3,7 @@ SECONDS=0
 COMPOSE_FILE=/tmp/docker-compose-all.yml
 ALL_LINES=$(cat <<'END_HEREDOC'
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-# version: "3"
+version: "3"
 # # More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
 services:
 #   pihole:
@@ -56,17 +56,17 @@ services:
 #     - 8000:80
 #   restart: unless-stopped
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-portainer:
-  image: portainer/portainer:latest
-  container_name: portainer
-  environment:
-    - TZ=Europe/Berlin
-  volumes:
-    - /home/pi/dockerData/portainer-data/:/data
-    - /var/run/docker.sock:/var/run/docker.sock
-  ports:
-    - 9000:9000
-  restart: always
+ portainer:
+   image: portainer/portainer:latest
+   container_name: portainer
+   environment:
+     - TZ=Europe/Berlin
+   volumes:
+     - /home/pi/dockerData/portainer-data/:/data
+     - /var/run/docker.sock:/var/run/docker.sock
+   ports:
+     - 9000:9000
+   restart: always
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 END_HEREDOC
 )
