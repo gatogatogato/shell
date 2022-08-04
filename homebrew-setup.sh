@@ -15,7 +15,7 @@ echo "Press enter to continue or CTRL+C to cancel..."
 read
 
 #---------------------------------------------------------------------------------------------------
-echo "Install basic stuff from brew ..."
+echo "Install basic stuff from brew..."
 brew install "bash-completion"
 brew install "exiftool"
 brew install "ffmpeg"
@@ -33,7 +33,13 @@ brew install "yt-dlp"
 brew install "zsh-completions"
 
 #---------------------------------------------------------------------------------------------------
-echo "Install desktop apps from brew ..."
+echo "Install plugins for micro editor..."
+micro -plugin install autofmt
+micro -plugin install aspell
+micro -plugin install monokai-dark
+
+#---------------------------------------------------------------------------------------------------
+echo "Install desktop apps from brew..."
 brew install tor-browser
 brew install mactracker
 brew install --cask "1Password"
