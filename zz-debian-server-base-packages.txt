@@ -34,3 +34,4 @@ tmux
 unzip
 vsftpd
 wget
+xsel
