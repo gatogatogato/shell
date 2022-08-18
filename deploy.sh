@@ -30,7 +30,6 @@ case "${OS}" in
 	cp ${TARGET_DIR}/README.txt ~/shell-clone-command.txt
 	if [[ ${PRETTY_NAME} =~ "Raspbian" ]]; 	then
 		echo "Copy specific stuff for Raspbian platform..." 
-		#cp ${TARGET_DIR}/update-docker-compose.sh ~/
 		cp ${TARGET_DIR}/update-pihole-blocklists.sh ~/
 		cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
 		cp ${TARGET_DIR}/mvs-tmux.sh ~/
@@ -38,10 +37,12 @@ case "${OS}" in
 		cp ${TARGET_DIR}/tk4-install-brexx.sh ~/
 		cp ${TARGET_DIR}/tk4-install-kicks.sh ~/
 		cp ${TARGET_DIR}/tk4-install-netsol.sh ~/
+		cp ${TARGET_DIR}/install-topgrade.sh ~/
 	fi
 	if [[ ${PRETTY_NAME} =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
 		cp ${TARGET_DIR}/gato-tmux.sh ~/
+		cp ${TARGET_DIR}/install-topgrade.sh ~/		
 	fi
 	;;
   *Darwin*) 

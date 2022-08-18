@@ -6,6 +6,8 @@ clear
 XNAME=$(grep "^NAME=" /etc/os-release)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
+	mkdir ~/topgrade
+	cd ~/topgrade
 	if [[ "$XNAME" == *"Raspbian"* ]]; then
 		echo "RASPIAN"
 		FILE=topgrade-v9.0.1-armv7-unknown-linux-gnueabihf.tar.gz
@@ -15,15 +17,12 @@ if [[ ${RET} -eq 0 ]]; then
 	else
 		echo "UNKNOWN"
 	fi
+	wget https://github.com/r-darwish/topgrade/releases/download/v9.0.1/${FILE}
+	tar xzvf ${FILE} && rm ${FILE}
+	echo "Run with ~/topgrade/topgrade"
 else
 	echo "Could not determine OS."
 fi
-
-mkdir ~/topgrade
-cd ~/topgrade
-wget https://github.com/r-darwish/topgrade/releases/download/v9.0.1/${FILE}
-tar xzvf ${FILE} && rm ${FILE}
-~/topgrade/topgrade
 
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
