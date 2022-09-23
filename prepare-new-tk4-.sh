@@ -2,8 +2,12 @@
 #-----------------------------------------------------------------
 export installdir=~/tk4-$(date +%Y-%m-%d_%H.%M)
 
-export download_server_tk4="http://wotho.ethz.ch/tk4-/"
-export zip_file_tk4="tk4-_v1.00_current.zip"
+
+
+export download_server_tk4="https://archive.org/details/"
+export zip_file_tk4="tk4_ispf.tar"
+# export download_server_tk4="http://wotho.ethz.ch/tk4-/"
+# export zip_file_tk4="tk4-_v1.00_current.zip"
 
 export download_server_kicks="https://github.com/moshix/kicks/raw/master/"
 export zip_file_kicks="kicks-tso-v1r5m0.zip"
@@ -19,7 +23,8 @@ echo "Download ${download_server_tk4}${zip_file_tk4}..."
 wget -q ${download_server_tk4}${zip_file_tk4}
 
 echo "Unzip ${zip_file_tk4}..."
-unzip -q ${zip_file_tk4} && rm ${zip_file_tk4}
+# unzip -q ${zip_file_tk4} && rm ${zip_file_tk4}
+tar xf ${zip_file_tk4} && rm ${zip_file_tk4}
 
 echo "Delete misc. files to save some space..."
 find . -name "*.bat" -type f -delete
