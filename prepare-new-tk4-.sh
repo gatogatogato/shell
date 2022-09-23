@@ -2,8 +2,6 @@
 #-----------------------------------------------------------------
 export installdir=~/tk4-$(date +%Y-%m-%d_%H.%M)
 
-
-
 export download_server_tk4="https://archive.org/details/"
 export zip_file_tk4="tk4_ispf.tar"
 # export download_server_tk4="http://wotho.ethz.ch/tk4-/"
