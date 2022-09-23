@@ -2,8 +2,8 @@
 #-----------------------------------------------------------------
 export installdir=~/tk4-$(date +%Y-%m-%d_%H.%M)
 
-export download_server_tk4="https://archive.org/details/"
-export zip_file_tk4="tk4_ispf.tar"
+export download_server_tk4="https://archive.org/download/tk4_ispf.tar/"
+export zip_file_tk4="tk4_ispf.tar.gz"
 # export download_server_tk4="http://wotho.ethz.ch/tk4-/"
 # export zip_file_tk4="tk4-_v1.00_current.zip"
 
@@ -18,11 +18,12 @@ mkdir -p ${installdir}
 cd ${installdir}
 
 echo "Download ${download_server_tk4}${zip_file_tk4}..."
+echo "(this may take a while)"
 wget -q ${download_server_tk4}${zip_file_tk4}
 
 echo "Unzip ${zip_file_tk4}..."
 # unzip -q ${zip_file_tk4} && rm ${zip_file_tk4}
-tar xf ${zip_file_tk4} && rm ${zip_file_tk4}
+tar xzf ${zip_file_tk4} && rm ${zip_file_tk4}
 
 echo "Delete misc. files to save some space..."
 find . -name "*.bat" -type f -delete
