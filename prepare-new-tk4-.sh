@@ -23,7 +23,8 @@ wget -q ${download_server_tk4}${zip_file_tk4}
 
 echo "Unzip ${zip_file_tk4}..."
 # unzip -q ${zip_file_tk4} && rm ${zip_file_tk4}
-tar xzf ${zip_file_tk4} && rm ${zip_file_tk4}
+tar xzf ${zip_file_tk4} 2> /dev/null # && rm ${zip_file_tk4}
+mv archive.org/* . && rm -rf archive.org
 
 echo "Delete misc. files to save some space..."
 find . -name "*.bat" -type f -delete
