@@ -32,13 +32,13 @@ case "${OS}" in
 		echo "Copy specific stuff for Raspbian platform..." 
 		cp ${TARGET_DIR}/update-pihole-blocklists.sh ~/
 		cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
+		cp ${TARGET_DIR}/prepare-new-tk5.sh ~/		
 		cp ${TARGET_DIR}/mvs-tmux.sh ~/
 		cp ${TARGET_DIR}/mvs-langtest.sh ~/
 		cp ${TARGET_DIR}/tk4-install-brexx.sh ~/
 		cp ${TARGET_DIR}/tk4-install-kicks.sh ~/
 		cp ${TARGET_DIR}/tk4-install-netsol.sh ~/
 		cp ${TARGET_DIR}/install-topgrade.sh ~/
-		cp ${TARGET_DIR}/prepare-new-tk5.sh ~/		
 	fi
 	if [[ ${PRETTY_NAME} =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
