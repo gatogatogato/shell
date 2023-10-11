@@ -38,6 +38,7 @@ case "${OS}" in
 		cp ${TARGET_DIR}/tk4-install-kicks.sh ~/
 		cp ${TARGET_DIR}/tk4-install-netsol.sh ~/
 		cp ${TARGET_DIR}/install-topgrade.sh ~/
+		cp ${TARGET_DIR}/prepare-new-tk5.sh ~/		
 	fi
 	if [[ ${PRETTY_NAME} =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
