@@ -28,7 +28,7 @@ case "${OS}" in
 	echo "Copy generic stuff for all Linux platforms..." 
 	cp ${TARGET_DIR}/update-debian.sh ~/
 	cp ${TARGET_DIR}/README.txt ~/shell-clone-command.txt
-	if [[ ${PRETTY_NAME} =~ "Raspbian" ]]; 	then
+	if [[ ${PRETTY_NAME} =~ "raspberrypi" ]]; 	then
 		echo "Copy specific stuff for Raspbian platform..." 
 		cp ${TARGET_DIR}/update-pihole-blocklists.sh ~/
 		cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
