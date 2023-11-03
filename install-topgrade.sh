@@ -4,12 +4,13 @@ echo "---------------------------------------------------"
 echo "Install topgrade on Debian or Raspbian"
 clear
 XNAME=$(grep "^NAME=" /etc/os-release)
+ARCHNAME=$(uname -a)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
 	mkdir ~/topgrade
 	cd ~/topgrade
-	if [[ "$XNAME" == *"Raspbian"* ]]; then
-		echo "RASPIAN"
+	if [[ "$ARCHNAME" == *"aarch64"* ]]; then
+		echo "RASPIAN ARM"
 		FILE=topgrade-v9.0.1-armv7-unknown-linux-gnueabihf.tar.gz
 	elif [[ "$XNAME" == *"Debian"* ]]; then
 		echo "DEBIAN"
