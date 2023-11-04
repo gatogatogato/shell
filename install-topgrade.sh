@@ -11,14 +11,14 @@ if [[ ${RET} -eq 0 ]]; then
 	cd ~/topgrade
 	if [[ "$ARCHNAME" == *"aarch64"* ]]; then
 		echo "RASPIAN ARM"
-		FILE=topgrade-v9.0.1-armv7-unknown-linux-gnueabihf.tar.gz
+		FILE=topgrade-v13.0.0-armv7-unknown-linux-gnueabihf.tar.gz
 	elif [[ "$XNAME" == *"Debian"* ]]; then
 		echo "DEBIAN"
-		FILE=topgrade-v9.0.1-x86_64-unknown-linux-gnu.tar.gz
+		FILE=topgrade-v13.0.0-x86_64-unknown-linux-gnu.tar.gz
 	else
 		echo "UNKNOWN"
 	fi
-	wget https://github.com/r-darwish/topgrade/releases/download/v9.0.1/${FILE}
+	wget https://github.com/topgrade-rs/topgrade/releases/download/v13.0.0/${FILE}
 	tar xzvf ${FILE} && rm ${FILE}
 	echo "Run with ~/topgrade/topgrade"
 else
@@ -28,3 +28,5 @@ fi
 echo "---------------------------------------------------"
 echo "Update took ${SECONDS} seconds to finish."
 echo "---------------------------------------------------"
+
+
