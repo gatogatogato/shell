@@ -3,7 +3,7 @@ SECONDS=0
 echo "---------------------------------------------------"
 echo "Install topgrade on Debian or Raspbian"
 clear
-INSTALLDIR=~/topgrade/
+INSTALLDIR=~/topgrade
 
 XNAME=$(hostname)
 RET=$?
