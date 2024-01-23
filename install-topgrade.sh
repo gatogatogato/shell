@@ -3,6 +3,8 @@ SECONDS=0
 echo "---------------------------------------------------"
 echo "Install topgrade on Debian or Raspbian"
 clear
+INSTALLDIR=~/topgrade/
+
 XNAME=$(hostname)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
@@ -17,16 +19,16 @@ if [[ ${RET} -eq 0 ]]; then
 	fi
 	wget https://github.com/topgrade-rs/topgrade/releases/download/v14.0.0/${FILE}
 
-	if [ -d "~/topgrade" ]; then
-	  echo "Topgrade directory exists. Renaming..."
+	if [ -d "${INSTALLDIR}" ]; then
+	  echo "Topgrade directory ${INSTALLDIR} exists. Renaming..."
 	  TS=$(date +"%Y-%m-%d_%H.%M.%S")
-	  mv ~/topgrade ~/topgrade-${TS}
+	  mv ${INSTALLDIR} ${INSTALLDIR}-${TS}
 	else
-		mkdir ~/topgrade
-		cd ~/topgrade
+		mkdir ${INSTALLDIR}
+		cd ${INSTALLDIR}
 		tar xzvf ${FILE} && rm ${FILE}
 	fi
-	echo "Run with ~/topgrade/topgrade"
+	echo "Run with ${INSTALLDIR}/topgrade"
 else
 	echo "Could not determine OS."
 fi
