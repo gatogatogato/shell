@@ -22,13 +22,12 @@ if [[ ${RET} -eq 0 ]]; then
 	  echo "Topgrade directory ${INSTALLDIR} exists. Renaming..."
 	  TS=$(date +"%Y-%m-%d_%H.%M.%S")
 	  mv ${INSTALLDIR} ${INSTALLDIR}-${TS}
-	else
-		mkdir ${INSTALLDIR}
-		cd ${INSTALLDIR}
-		wget ${BASEURL}/${FILE}
-		tar xzvf ${FILE}
-		rm ${FILE}
 	fi
+	mkdir ${INSTALLDIR}
+	cd ${INSTALLDIR}
+	wget ${BASEURL}/${FILE}
+	tar xzvf ${FILE}
+	rm ${FILE}
 	echo "Run with ${INSTALLDIR}/topgrade"
 else
 	echo "Could not determine OS."
