@@ -4,7 +4,7 @@ echo "---------------------------------------------------"
 echo "Install topgrade on Debian or Raspbian"
 clear
 INSTALLDIR=~/topgrade
-
+BASEURL=https://github.com/topgrade-rs/topgrade/releases/download/v14.0.0
 XNAME=$(hostname)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
@@ -17,7 +17,6 @@ if [[ ${RET} -eq 0 ]]; then
 	else
 		echo "UNKNOWN"
 	fi
-	wget https://github.com/topgrade-rs/topgrade/releases/download/v14.0.0/${FILE}
 
 	if [ -d "${INSTALLDIR}" ]; then
 	  echo "Topgrade directory ${INSTALLDIR} exists. Renaming..."
@@ -26,7 +25,9 @@ if [[ ${RET} -eq 0 ]]; then
 	else
 		mkdir ${INSTALLDIR}
 		cd ${INSTALLDIR}
-		tar xzvf ${FILE} && rm ${FILE}
+		wget ${BASEURL}/${FILE}
+		tar xzvf ${FILE}
+		rm ${FILE}
 	fi
 	echo "Run with ${INSTALLDIR}/topgrade"
 else
