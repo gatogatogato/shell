@@ -23,8 +23,11 @@ if [[ ${RET} -eq 0 ]]; then
 	  TS=$(date +"%Y-%m-%d_%H.%M.%S")
 	  mv ${INSTALLDIR} ${INSTALLDIR}-${TS}
 	fi
+
 	mkdir ${INSTALLDIR}
 	cd ${INSTALLDIR}
+
+	echo "Try to get ${BASEURL}/${FILE}..."
 	wget ${BASEURL}/${FILE}
 	tar xzvf ${FILE}
 	rm ${FILE}
