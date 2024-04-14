@@ -4,7 +4,7 @@ echo "---------------------------------------------------"
 echo "Install topgrade on Debian or Raspbian"
 clear
 INSTALLDIR=~/topgrade
-BASEURL=https://github.com/topgrade-rs/topgrade/releases/download/v14.0.1
+BASEURL=https://github.com/topgrade-rs/topgrade/releases/download/v14.0.1/
 XNAME=$(hostname)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
