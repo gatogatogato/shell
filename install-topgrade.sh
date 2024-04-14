@@ -16,6 +16,7 @@ if [[ ${RET} -eq 0 ]]; then
 		FILE=topgrade-v14.0.1-x86_64-unknown-linux-gnu.tar.gz
 	else
 		echo "UNKNOWN"
+		FILE=topgrade-v14.0.1-x86_64-unknown-linux-gnu.tar.gz
 	fi
 
 	if [ -d "${INSTALLDIR}" ]; then
