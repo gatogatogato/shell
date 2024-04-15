@@ -1,16 +1,6 @@
-OS=$(uname -a)
-
-case "${OS}" in
-  *Linux*) 
-	alias ls='ls --color'
-        ;;
-  *Darwin*) 
-	PATH=/opt/homebrew/opt/ruby/bin:$PATH:/opt/homebrew/bin
-	export LDFLAGS="-L/opt/homebrew/opt/ruby/lib"
-	export CPPFLAGS="-I/opt/homebrew/opt/ruby/include"
-	export PKG_CONFIG_PATH="/opt/homebrew/opt/ruby/lib/pkgconfig"
-    ;;
-esac
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# These are gato additions
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 alias ll="ls -G -l"
 alias la="ls -G -la"

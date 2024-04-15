@@ -11,7 +11,6 @@ gnupg-agent
 imagemagick
 iptables
 libapache2-mod-php
-libglib2.0
 logcheck
 logcheck-database
 micro
