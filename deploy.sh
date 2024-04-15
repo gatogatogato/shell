@@ -20,26 +20,14 @@ chmod +x ${TARGET_DIR}/*.sh
 
 echo ${DIVIDER}
 
-echo "Copy generic stuff for all platforms..." 
-cp ${TARGET_DIR}/dot-zshrc.txt ~/.zshrc
+echo "Appending our zsh stuff to the already existing one..." 
+cat ${TARGET_DIR}/dot-zshrc.txt >> ~/.zshrc
 
 case "${OS}" in
   *Linux*)
 	echo "Copy generic stuff for all Linux platforms..." 
 	cp ${TARGET_DIR}/update-debian.sh ~/
 	cp ${TARGET_DIR}/README.txt ~/shell-clone-command.txt
-	if [[ ${OS} =~ "raspberrypi" ]]; 	then
-		echo "Copy specific stuff for raspberrypi platform..." 
-		cp ${TARGET_DIR}/update-pihole-blocklists.sh ~/
-		cp ${TARGET_DIR}/prepare-new-tk4-.sh ~/
-		cp ${TARGET_DIR}/prepare-new-tk5.sh ~/		
-		cp ${TARGET_DIR}/mvs-tmux.sh ~/
-		cp ${TARGET_DIR}/mvs-langtest.sh ~/
-		cp ${TARGET_DIR}/tk4-install-brexx.sh ~/
-		cp ${TARGET_DIR}/tk4-install-kicks.sh ~/
-		cp ${TARGET_DIR}/tk4-install-netsol.sh ~/
-		cp ${TARGET_DIR}/install-topgrade.sh ~/
-	fi
 	if [[ ${PRETTY_NAME} =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
 		cp ${TARGET_DIR}/gato-tmux.sh ~/
