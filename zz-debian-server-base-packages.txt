@@ -22,7 +22,6 @@ php
 php-curl
 php-mysql
 php-pear
-python-certbot-apache
 reboot-notifier
 rkhunter
 ruby
