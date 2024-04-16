@@ -37,6 +37,7 @@ case "${OS}" in
   *Darwin*) 
 	echo "Copy specific stuff for MacOS platform..."
 	cp ${TARGET_DIR}/homebrew-setup.sh ~/
+	cp ${TARGET_DIR}/tmux-ssh.sh ~/
 	;;
 esac
 
