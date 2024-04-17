@@ -3,7 +3,7 @@ serverNames="websrv flickr test huginn"
 counter=0
 serverCount=$(echo "${serverNames}" | wc -w | xargs)
 
-echo "serverCount is ${serverCount}"
+# echo "serverCount is ${serverCount}"
 
 tmux -2 attach-session -t gato
 if [[ $? -eq 1 ]]; then
@@ -11,7 +11,7 @@ if [[ $? -eq 1 ]]; then
         for server in ${serverNames}
         do
                 counter=$((counter + 1))
-                echo "Counter is ${counter}, server is ${server}"
+                # echo "Counter is ${counter}, server is ${server}"
 
                 if [[ ${counter} -eq 1 ]]; then      
                         tmux new-session -s gato -n "${server}" -d "mosh gato@debian-${server}.local"
