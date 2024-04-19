@@ -1,5 +1,5 @@
 #!/bin/bash
-serverNames="websrv flickr test huginn"
+serverNames="websrv flickr test"
 counter=0
 serverCount=$(echo "${serverNames}" | wc -w | xargs)
 
