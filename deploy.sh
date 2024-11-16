@@ -2,7 +2,6 @@
 # Use 
 #   cd && rm -rf ~/shell && git clone https://github.com/gatogatogato/shell ~/shell && zsh ~/shell/deploy.sh
 # before runnnig this script 
-# TEST
 
 export DIVIDER="---------------------------------------------------------"
 . /etc/os-release 2> /dev/null
