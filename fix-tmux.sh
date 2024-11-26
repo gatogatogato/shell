@@ -10,7 +10,12 @@ sudo echo "unbind C-b" >> ${outfile}
 sudo echo "set-option -g prefix C-a" >> ${outfile}
 sudo echo "bind-key C-a send-prefix" >> ${outfile}
 
-echo "# Press Ctrl-a Ctrl-x to send a command to all panes"  >  ${private_outfile}
-echo "# Press Ctrl-a Mac-x to disable this mode"             >> ${private_outfile}
-echo "bind -n C-x setw synchronize-panes on"                 >> ${private_outfile}
-echo "bind -n M-x setw synchronize-panes off"                >> ${private_outfile}
+IFS='' read -r -d '' outcommand <<"EOF"
+bind E command-prompt -p "Command:" \
+       "run \"tmux list-panes -a -F '##{session_name}:##{window_index}.##{pane_index}' \
+              | xargs -I PANE tmux send-keys -t PANE '%1' Enter\""
+EOF
+
+echo "# Press Ctrl-a E to send a command to all panes"  >  ${private_outfile}
+echo ${outcommand}                                      >> ${private_outfile}
+
