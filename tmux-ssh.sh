@@ -1,5 +1,5 @@
 #!/bin/bash
-serverNames="websrv flickr homer ansible uptimekuma pihole test"
+serverNames="proxmox-n01 proxmox-n02 debian-websrv debian-flickr debian-homer debian-ansible debian-uptimekuma debian-pihole debian-test"
 counter=0
 serverCount=$(echo "${serverNames}" | wc -w | xargs)
 
@@ -14,10 +14,10 @@ if [[ $? -eq 1 ]]; then
                 # echo "Counter is ${counter}, server is ${server}"
 
                 if [[ ${counter} -eq 1 ]]; then      
-                        tmux new-session -s gato -n "${server}" -d "mosh gato@debian-${server}.local"
+                        tmux new-session -s gato -n "${server}" -d "mosh gato@${server}.local"
                         tmux rename-window -t gato:1 "${server}"
                 else
-                        tmux new-window -t gato:${counter} -n "${server}" "mosh gato@debian-${server}.local"
+                        tmux new-window -t gato:${counter} -n "${server}" "mosh gato@${server}.local"
                         tmux rename-window -t gato:${counter} "${server}"
                 fi
         done
