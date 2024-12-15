@@ -1,5 +1,5 @@
 #!/bin/bash
-serverNames="proxmox-n01 proxmox-n02 proxmox-n03 proxmox-backup-server debian-websrv debian-flickr debian-homer debian-ansible debian-uptimekuma debian-pihole debian-test debian-test1"
+serverNames="proxmox-n01 proxmox-n02 proxmox-backup-server debian-websrv debian-flickr debian-homer debian-ansible debian-uptimekuma debian-pihole debian-test debian-test1"
 counter=0
 serverCount=$(echo "${serverNames}" | wc -w | xargs)
 
