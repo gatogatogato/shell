@@ -36,11 +36,11 @@ function lookup_run_parts() {
 
             if [[ -d "${cron_job_dir}" ]] ; then
                 for cron_job_file in "${cron_job_dir}"/* ; do  # */ <not a comment>
-                [[ -f "${cron_job_file}" ]] && echo "${cron_fields} ${cron_job_file}"
-            done
+                    [[ -f "${cron_job_file}" ]] && echo "${cron_fields} ${cron_job_file}"
+                done
+            fi
         fi
-    fi
-done;
+    done;
 }
 
 # Temporary file for crontab lines.
