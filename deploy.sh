@@ -9,39 +9,39 @@ SECONDS=0
 TARGET_DIR=~/shell
 OS=$(uname -a)
 #
-echo ${DIVIDER}
-cd ${TARGET_DIR}
+echo "${DIVIDER}"
+cd "${TARGET_DIR}"
 
 echo "Update from GitHub..."
 git pull -q origin master
-echo ${DIVIDER}
+echo "${DIVIDER}"
 echo "Make shell files executable..."
-chmod +x ${TARGET_DIR}/*.sh
+chmod +x "${TARGET_DIR}"/*.sh
 
-echo ${DIVIDER}
+echo "${DIVIDER}"
 
 echo "Appending our zsh stuff to the already existing one..." 
-cat ${TARGET_DIR}/dot-zshrc.txt >> ~/.zshrc
+cat "${TARGET_DIR}/dot-zshrc.txt" >> ~/.zshrc
 
 case "${OS}" in
   *Linux*)
 	echo "Copy generic stuff for all Linux platforms..." 
-	cp ${TARGET_DIR}/update-debian.sh ~/
-	cp ${TARGET_DIR}/README.txt ~/shell-clone-command.txt
-	if [[ ${PRETTY_NAME} =~ "Debian" ]]; 	then
+	cp "${TARGET_DIR}/update-debian.sh" ~/
+	cp "${TARGET_DIR}/README.txt" ~/shell-clone-command.txt
+	if [[ "${PRETTY_NAME}" =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
-		cp ${TARGET_DIR}/gato-tmux.sh ~/
-		cp ${TARGET_DIR}/install-topgrade.sh ~/		
+		cp "${TARGET_DIR}/gato-tmux.sh" ~/
+		cp "${TARGET_DIR}/install-topgrade.sh" ~/		
 	fi
 	;;
   *Darwin*) 
 	echo "Copy specific stuff for MacOS platform..."
-	cp ${TARGET_DIR}/homebrew-setup.sh ~/
-	cp ${TARGET_DIR}/tmux-ssh.sh ~/
+	cp "${TARGET_DIR}/homebrew-setup.sh" ~/
+	cp "${TARGET_DIR}/tmux-ssh.sh" ~/
 	;;
 esac
 
-echo ${DIVIDER}
+echo "${DIVIDER}"
 echo "Took ${SECONDS} seconds to deploy."
 echo "End of script."
-echo ${DIVIDER}
+echo "${DIVIDER}"

@@ -1,6 +1,6 @@
 #!/bin/zsh
 tmux -2 attach-session -t gato
-if [[ $? -eq 1 ]]; then
+if [[ "${?}" -eq 1 ]]; then
         # tmux session is not active - we'll create one
         tmux new-session -s gato -n "HERCULES" -d 'cd ~/tk4-/ ; ./mvs '
         tmux rename-window -t gato:1 "HERCULES"
