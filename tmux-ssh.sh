@@ -3,6 +3,7 @@ set -euo pipefail  # Enable strict error handling
 
 # Configuration
 readonly SESSION_NAME="gato"
+readonly PING_TIMEOUT="0.1"
 readonly SERVERS=(
     proxmox-n01
     proxmox-n02
@@ -26,7 +27,7 @@ fi
 # Function to check if server is reachable
 check_server() {
     local server="${1}"
-    ping -c 1 -W 1 "${server}.local" &> /dev/null
+    ping -c 1 -W "${PING_TIMEOUT}" "${server}.local" &> /dev/null
 }
 
 # Try to attach to existing session first
