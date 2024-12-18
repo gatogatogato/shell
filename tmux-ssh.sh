@@ -42,7 +42,7 @@ if check_server "${SERVERS[0]}"; then
     tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "mosh gato@${SERVERS[0]}.local || bash"
 else
     echo "Warning: ${SERVERS[0]}.local is not reachable"
-    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "echo 'Server ${SERVERS[0]} is not reachable'; bash"
+    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "echo 'Server ${SERVERS[0]} is not reachable'; sleep 10; tmux kill-window"
 fi
 
 # Create remaining windows
@@ -53,7 +53,7 @@ for server in "${SERVERS[@]:1}"; do
         tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "mosh gato@${server}.local || bash"
     else
         echo "Warning: ${server}.local is not reachable"
-        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; bash"
+        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; sleep 10; tmux kill-window"
     fi
 done
 
