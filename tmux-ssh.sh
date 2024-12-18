@@ -13,8 +13,8 @@ readonly SERVERS=(
     debian-ansible
     debian-uptimekuma
     debian-pihole
-    debian-test
     debian-test1
+    debian-test2
 )
 
 # Check if mosh is installed
