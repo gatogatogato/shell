@@ -55,7 +55,7 @@ for server in "${SERVERS[@]:1}"; do
         tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "mosh gato@${server}.local || bash"
     else
         echo "Warning: ${server}.local is not reachable"
-        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; sleep 10; tmux kill-window"
+        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; sleep 10"
     fi
 done
 
