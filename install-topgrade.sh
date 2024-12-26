@@ -8,7 +8,7 @@ BASEURL=https://github.com/topgrade-rs/topgrade/releases/download/v14.0.1/
 XNAME=$(hostname)
 RET=$?
 if [[ ${RET} -eq 0 ]]; then
-	if [[ "$XNAME" == *"raspberrypi"* ]]; then
+	if [[ "$XNAME" == *"aarch64"* ]]; then
 		echo "Running on raspberrypi"
 		FILE=topgrade-v14.0.1-aarch64-unknown-linux-musl.tar.gz
 	elif [[ "$XNAME" == *"Debian"* ]]; then
