@@ -12,6 +12,7 @@ readonly SERVERS=(
     debian-websrv
     debian-flickr
     debian-homer
+    debian-hercules
     debian-ansible
     debian-uptimekuma
     debian-pihole
