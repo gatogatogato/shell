@@ -14,7 +14,9 @@ readonly SERVERS=(
     debian-homer
     debian-hercules
     debian-ansible
+    debian-changedetection
     debian-uptimekuma
+    debian-paperless
     debian-pihole
     debian-test1
     debian-test2
