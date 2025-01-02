@@ -16,7 +16,6 @@ readonly SERVERS=(
     debian-ansible
     debian-changedetection
     debian-uptimekuma
-    debian-paperless
     debian-pihole
     debian-test1
     debian-test2
