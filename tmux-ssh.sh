@@ -30,7 +30,7 @@ fi
 # Function to check if server is reachable
 check_server() {
     local server="${1}"
-    ping -c 5 -W "${PING_TIMEOUT}" "${server}.lan" &> /dev/null
+    ping -c 1 -W "${PING_TIMEOUT}" "${server}.lan" &> /dev/null
 }
 
 # Try to attach to existing session first
