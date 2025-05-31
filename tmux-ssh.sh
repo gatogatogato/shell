@@ -17,7 +17,6 @@ readonly SERVERS=(
     debian-changedetection
     debian-uptimekuma
     debian-technitium
-    debian-unifi
     debian-test1
     debian-test2
 )
