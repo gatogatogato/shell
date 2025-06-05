@@ -15,6 +15,8 @@ readonly SERVERS=(
     debian-hercules
     debian-ansible
     debian-changedetection
+    debian-glance
+    debian-cloudflared
     debian-uptimekuma
     debian-technitium
     debian-test1
