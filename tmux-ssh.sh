@@ -11,7 +11,6 @@ readonly SERVERS=(
     proxmox-backup-server
     debian-websrv
     debian-flickr
-    debian-homer
     debian-hercules
     debian-ansible
     debian-changedetection
