@@ -16,6 +16,7 @@ readonly SERVERS=(
     debian-changedetection
     debian-glance
     debian-cloudflared
+    debian-nginxproxymanager
     debian-uptimekuma
     debian-technitium
     debian-test1
