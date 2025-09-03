@@ -19,6 +19,7 @@ readonly SERVERS=(
     debian-nginxproxymanager
     debian-uptimekuma
     debian-technitium
+    debian-camsnaps
     debian-test1
     debian-test2
 )
@@ -45,7 +46,7 @@ echo "Creating new tmux session with connections to servers..."
 
 # Initialize first window
 if check_server "${SERVERS[0]}"; then
-    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "mosh gato@${SERVERS[0]}.lan"
+    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "ssh gato@${SERVERS[0]}.lan"
 else
     echo "Warning: ${SERVERS[0]}.lan is not reachable"
     tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "echo 'Server ${SERVERS[0]} is not reachable'; sleep 10; tmux kill-window"
@@ -56,7 +57,7 @@ for server in "${SERVERS[@]:1}"; do
     window_number=$(($(tmux list-windows -t "${SESSION_NAME}" | wc -l) + 1))
     
     if check_server "${server}"; then
-        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "mosh gato@${server}.lan"
+        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "ssh gato@${server}.lan"
     else
         echo "Warning: ${server}.lan is not reachable"
         tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; sleep 10"
