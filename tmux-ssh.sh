@@ -18,7 +18,7 @@ readonly SERVERS=(
     debian-cloudflared
     debian-nginxproxymanager
     debian-uptimekuma
-    debian-technitium
+    debian-pihole
     debian-camsnaps
     debian-test1
     debian-test2
