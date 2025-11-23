@@ -16,7 +16,7 @@ readonly SERVERS=(
     debian-changedetection
     debian-glance
     debian-cloudflared
-    debian-nginxproxymanager
+    debian-npm
     debian-uptimekuma
     debian-pihole
     debian-camsnaps
