@@ -8,7 +8,6 @@ readonly SERVERS=(
     proxmox-n01
     proxmox-n02
     proxmox-n03
-    proxmox-backup-server
     debian-websrv
     debian-flickr
     debian-hercules
