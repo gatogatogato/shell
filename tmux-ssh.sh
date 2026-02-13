@@ -19,8 +19,6 @@ readonly SERVERS=(
     debian-uptimekuma
     debian-pihole
     debian-camsnaps
-    debian-test1
-    debian-test2
 )
 
 # Check if mosh is installed
