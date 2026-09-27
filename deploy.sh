@@ -31,6 +31,7 @@ case "${OS}" in
 	if [[ "${PRETTY_NAME}" =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
 		cp "${TARGET_DIR}/install-topgrade.sh" ~/		
+		rm -f ~/gato-tmux.sh  # outdated, removed from repo
 	fi
 	;;
   *Darwin*) 
