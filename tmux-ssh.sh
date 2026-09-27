@@ -1,9 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail  # Enable strict error handling
 
 # Configuration
 readonly SESSION_NAME="gato"
-readonly PING_TIMEOUT="0.1"
+readonly SSH_USER="gato"
+readonly DOMAIN="lan"
+readonly CONNECT_TIMEOUT=3
 readonly SERVERS=(
     proxmox-n01
     proxmox-n02
@@ -21,46 +23,44 @@ readonly SERVERS=(
     debian-camsnaps
 )
 
-# Check if mosh is installed
-if ! command -v mosh &> /dev/null; then
-    echo "Error: mosh is not installed. Please install it first."
+if ! command -v tmux &> /dev/null; then
+    echo "Error: tmux is not installed. Please install it first." >&2
     exit 1
 fi
 
-# Function to check if server is reachable
-check_server() {
-    local server="${1}"
-    ping -c 1 -W "${PING_TIMEOUT}" "${server}.lan" &> /dev/null
+# Attach to the session, or switch to it when already running inside tmux
+attach() {
+    if [[ -n "${TMUX:-}" ]]; then
+        exec tmux switch-client -t "${SESSION_NAME}"
+    else
+        exec tmux -2 attach-session -t "${SESSION_NAME}"
+    fi
+}
+
+# Command run in each window: connect, and offer a reconnect when ssh exits
+server_cmd() {
+    local host
+    host=$(printf '%q' "${SSH_USER}@${1}.${DOMAIN}")
+    printf 'while :; do ssh -o ConnectTimeout=%s %s; printf "\\nConnection to %s closed. Press Enter to reconnect, Ctrl-C to close. "; read -r _ || break; done' \
+        "${CONNECT_TIMEOUT}" "${host}" "${host}"
 }
 
 # Try to attach to existing session first
 if tmux has-session -t "${SESSION_NAME}" 2>/dev/null; then
-    exec tmux -2 attach-session -t "${SESSION_NAME}"
+    attach
 fi
 
-# Create new session
 echo "Creating new tmux session with connections to servers..."
 
-# Initialize first window
-if check_server "${SERVERS[0]}"; then
-    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "ssh gato@${SERVERS[0]}.lan"
-else
-    echo "Warning: ${SERVERS[0]}.lan is not reachable"
-    tmux new-session -s "${SESSION_NAME}" -n "${SERVERS[0]}" -d "echo 'Server ${SERVERS[0]} is not reachable'; sleep 10; tmux kill-window"
-fi
-
-# Create remaining windows
-for server in "${SERVERS[@]:1}"; do
-    window_number=$(($(tmux list-windows -t "${SESSION_NAME}" | wc -l) + 1))
-    
-    if check_server "${server}"; then
-        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "ssh gato@${server}.lan"
+for server in "${SERVERS[@]}"; do
+    if tmux has-session -t "${SESSION_NAME}" 2>/dev/null; then
+        # A trailing colon appends the window at the next free index
+        tmux new-window -d -t "${SESSION_NAME}:" -n "${server}" "$(server_cmd "${server}")"
     else
-        echo "Warning: ${server}.lan is not reachable"
-        tmux new-window -t "${SESSION_NAME}:${window_number}" -n "${server}" "echo 'Server ${server} is not reachable'; sleep 10"
+        tmux new-session -d -s "${SESSION_NAME}" -n "${server}" "$(server_cmd "${server}")"
     fi
 done
 
-# Select first window and attach to session
-tmux select-window -t "${SESSION_NAME}:0"
-exec tmux -2 attach-session -t "${SESSION_NAME}"
+# Select first window (works with any base-index) and attach to session
+tmux select-window -t "${SESSION_NAME}:^"
+attach
