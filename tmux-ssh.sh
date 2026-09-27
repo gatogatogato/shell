@@ -37,11 +37,12 @@ attach() {
     fi
 }
 
-# Command run in each window: connect, and offer a reconnect when ssh exits
+# Command run in each window: connect; a normal logout (Ctrl-D, exit) closes
+# the window, only a connection error (ssh exit code 255) offers a reconnect
 server_cmd() {
     local host
     host=$(printf '%q' "${SSH_USER}@${1}.${DOMAIN}")
-    printf 'while :; do ssh -o ConnectTimeout=%s %s; printf "\\nConnection to %s closed. Press Enter to reconnect, Ctrl-C to close. "; read -r _ || break; done' \
+    printf 'while :; do ssh -o ConnectTimeout=%s %s; [ $? -eq 255 ] || break; printf "\\nConnection to %s lost. Press Enter to reconnect, Ctrl-C to close. "; read -r _ || break; done' \
         "${CONNECT_TIMEOUT}" "${host}" "${host}"
 }
 
