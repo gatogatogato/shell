@@ -30,7 +30,6 @@ case "${OS}" in
 	cp "${TARGET_DIR}/README.txt" ~/shell-clone-command.txt
 	if [[ "${PRETTY_NAME}" =~ "Debian" ]]; 	then
     	echo "Copy specific stuff for Debian platform..." 
-		cp "${TARGET_DIR}/gato-tmux.sh" ~/
 		cp "${TARGET_DIR}/install-topgrade.sh" ~/		
 	fi
 	;;
