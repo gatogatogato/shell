@@ -73,7 +73,7 @@ bash truenas-backup-status-to-uptimekuma.sh --dry-run   # zeigt nur an, was gepu
 bash truenas-backup-status-to-uptimekuma.sh             # pusht wirklich
 ```
 
-Danach sollten alle Monitore in Uptime Kuma grün sein. Exit-Code 0 bedeutet: alles UP und alle Pushes angekommen.
+Danach sollten alle Monitore in Uptime Kuma grün sein. Exit-Code 0 bedeutet: alle Pushes sind angekommen, auch wenn ein Check DOWN ist. Den Alarm dafür schickt Uptime Kuma. Einen Exit-Code ungleich 0, und damit einen TrueNAS-Alert, gibt es nur bei einem Fehler in der Konfig oder wenn Uptime Kuma nicht erreichbar ist.
 
 ### 5. Cron Job in TrueNAS
 

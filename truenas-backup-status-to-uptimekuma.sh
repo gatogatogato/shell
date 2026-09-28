@@ -117,7 +117,7 @@ command -v jq >/dev/null     || die "jq fehlt"
 command -v midclt >/dev/null || die "midclt fehlt (laeuft das Skript auf TrueNAS?)"
 [[ -r "$CONFIG" ]]           || die "Konfig ${CONFIG} nicht lesbar"
 
-failed=0
+failed=0   # nur Konfig- oder Push-Fehler; ein DOWN meldet Uptime Kuma, nicht TrueNAS
 while read -r line; do
     read -r type target max_hours url _ <<< "${line%%#*}"   # Kommentare ab # ignorieren
     [[ -z "${type:-}" ]] && continue
@@ -131,7 +131,6 @@ while read -r line; do
         die "unbekannter Typ: ${type}"
     fi
     status=${result%%$'\t'*}
-    [[ "$status" == down ]] && failed=1
     push "$url" "$status" "${result#*$'\t'}" || failed=1
 done < "$CONFIG"
 
