@@ -16,10 +16,11 @@ CONFIG=${CONFIG:-"${SCRIPT_DIR}/$(basename "$0" .sh).conf"}
 DRY_RUN=0
 
 # Die Task-Typen und wo midclt ihren letzten Lauf ablegt
-# (Replikation und Snapshots in .state, Cloud Sync und Rsync in .job).
+# (Replikation und Snapshots in .state, Cloud Sync, TrueCloud Backup und Rsync in .job).
 declare -A QUERY=([replication]=replication.query [snapshot]=pool.snapshottask.query
-                  [cloudsync]=cloudsync.query [rsync]=rsynctask.query)
-declare -A FIELD=([replication]=state [snapshot]=state [cloudsync]=job [rsync]=job)
+                  [cloudsync]=cloudsync.query [cloudbackup]=cloud_backup.query
+                  [rsync]=rsynctask.query)
+declare -A FIELD=([replication]=state [snapshot]=state [cloudsync]=job [cloudbackup]=job [rsync]=job)
 
 die() { echo "FEHLER: $*" >&2; exit 2; }
 
@@ -97,7 +98,7 @@ check_file() {
 list_tasks() {
     echo "Typ          ID  Name                                   letzter Status"
     local type
-    for type in replication snapshot cloudsync rsync; do
+    for type in replication snapshot cloudsync cloudbackup rsync; do
         midclt call "${QUERY[$type]}" 2>/dev/null | jq -r --arg t "$type" --arg f "${FIELD[$type]}" '
             .[] | [ $t, (.id | tostring),
                     (.name // .description // .dataset // .path // "" | tostring),

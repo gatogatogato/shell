@@ -8,6 +8,7 @@
 |---|---|---|
 | `snapshot` | Periodic Snapshot Task (`pool.snapshottask.query`) | letzter Lauf mit Fehler, oder letzter Erfolg älter als `max_h` |
 | `cloudsync` | Cloud Sync Task, z. B. Storj (`cloudsync.query`) | Job `FAILED`/`ABORTED`, oder letzter Erfolg älter als `max_h` |
+| `cloudbackup` | TrueCloud Backup Task (`cloud_backup.query`) | wie oben |
 | `replication` | Replication Task (`replication.query`) | wie oben |
 | `rsync` | Rsync Task (`rsynctask.query`) | wie oben |
 | `file` | ein Ordner, z. B. `/mnt/tank01/vaultwarden-backups` | keine Datei, neueste Datei leer oder älter als `max_h` |
