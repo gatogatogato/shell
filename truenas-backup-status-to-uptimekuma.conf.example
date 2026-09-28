@@ -1,0 +1,16 @@
+# Konfig fuer truenas-backup-status-to-uptimekuma.sh
+# Kopieren nach truenas-backup-status-to-uptimekuma.conf (liegt neben dem Skript,
+# wird nicht ins Repo eingecheckt) und die Push-URLs aus Uptime Kuma eintragen.
+#
+# Typ: snapshot | cloudsync | replication | rsync  (Ziel = Task-ID, siehe --list)
+#      file                                       (Ziel = Ordner, neueste Datei zaehlt)
+# max_h: so viele Stunden darf der letzte Erfolg her sein, danach DOWN
+#
+# Typ       Ziel                          max_h  Push-URL
+snapshot    1                             26     https://uptimekuma.example/api/push/TOKEN   # nextcloud/userdata daily
+snapshot    2                             3      https://uptimekuma.example/api/push/TOKEN   # nextcloud/userdata hourly
+snapshot    3                             170    https://uptimekuma.example/api/push/TOKEN   # proxmox-raw-backups, Zeitplan pruefen
+snapshot    4                             26     https://uptimekuma.example/api/push/TOKEN   # vaultwarden-backups
+snapshot    5                             26     https://uptimekuma.example/api/push/TOKEN   # ha-backups
+cloudsync   5                             26     https://uptimekuma.example/api/push/TOKEN   # Storj lightroom-archive
+file        /mnt/tank01/vaultwarden-backups  26  https://uptimekuma.example/api/push/TOKEN   # eingehendes Vaultwarden-Backup
