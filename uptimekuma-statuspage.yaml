@@ -15,27 +15,22 @@ groups:
     - Unifi U6+ EG
     - Unifi U6+ OG
     - Unifi U6+ UG
-    - Pi-hole DNS .99
-    - Pi-hole DNS .59
+    - Pihole DNS Primary
+    - Pihole DNS Secondary
     - Lokale DNS-Namen
 
   Plattform:
-    - Proxmox Node 01
-    - Proxmox Node 02
-    - Proxmox Node 03
+    - Proxmox Node 01 HTTPS
+    - Proxmox Node 02 HTTPS
+    - Proxmox Node 03 HTTPS
     - TrueNas
-    - Pi-hole Container .99
-    - Pi-hole Container .59
-    - Ansible-Server
-    - flickr
-    - hercules
-    - camsnaps
-    - mbusmaster
+    - Pihole Ping Primary
+    - MBusMaster
 
   Dienste:
     - Glance
     - Change Detection
-    - Nginx Proxy Manager
+    - Nginx Proxy Manager HTTPS
     - Home Assistant
     - NextCloud
     - VaultWarden
