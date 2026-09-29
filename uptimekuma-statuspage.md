@@ -40,7 +40,7 @@ Das Skript muss Uptime Kuma erreichen, also im Heimnetz laufen. Das Repo liegt a
 
 Benutzer und Passwort fragt das Skript ab, bei aktivierter 2FA auch den Code. Alternativ kannst du sie in `KUMA_USER` und `KUMA_PASSWORD` setzen. In die YAML-Datei gehören sie nicht.
 
-Die Anmeldung kann einige Sekunden dauern, weil Uptime Kuma dabei die Historie aller Monitore mitschickt. Das Skript wartet bis zu 5 Minuten.
+Die Anmeldung kann eine Minute dauern, weil Uptime Kuma dabei die Historie aller Monitore mitschickt und erst danach weitere Anfragen beantwortet. Das Skript wartet bis zu 5 Minuten.
 
 ## Aufruf
 
