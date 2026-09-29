@@ -25,6 +25,7 @@ groups:
     - Proxmox Node 03 HTTPS
     - TrueNas
     - Pihole Ping Primary
+    - Pihole Ping Secondary
     - MBusMaster
 
   Dienste:
@@ -37,6 +38,7 @@ groups:
     - gatogatogato.ch
 
   Geräte:
+    - HomePod Bad OG
     - HomePod Büro
     - HomePod Küche
     - HomePod Schlafzimmer
@@ -45,6 +47,17 @@ groups:
     - Velux Gateway
     - Zigbee stick SLZB-06M
     - eBUSd Controller
+    - Huawei Emma
 
   Jobs:
     - Ansible Updates
+    - Proxmox vzdump
+    - Vaultwarden Backup
+    - Vaultwarden-File
+    - Snapshot 1
+    - Snapshots 2
+    - Snapshots 3
+    - Snapshots 4
+    - Snapshots 5
+    - Cloud Sync
+    - Github Mirror Push
