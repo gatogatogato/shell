@@ -43,7 +43,8 @@ def connect(url):
     sio = socketio.Client()
     monitors = {}
     ready = threading.Event()   # Server hat seine Handler registriert
-    changed = threading.Event() # Monitorliste oder Antwort auf den Login ist da
+    changed = threading.Event() # Antwort auf den Login ist da
+    got_list = threading.Event()
     answer = {}
 
     @sio.on("info")
@@ -54,7 +55,7 @@ def connect(url):
     def on_monitor_list(data):
         monitors.clear()
         monitors.update({int(k): v for k, v in data.items()})
-        changed.set()
+        got_list.set()
 
     def on_login(res):
         answer.update(res)
@@ -68,12 +69,12 @@ def connect(url):
     if not ready.wait(TIMEOUT):
         die("Server antwortet nicht (kein info)")
 
-    # Die Login-Antwort kommt erst, nachdem der Server alle Heartbeats geschickt hat,
-    # das dauert bei vielen Monitoren lange. Die Monitorliste kommt vorher und
-    # heisst ebenfalls: angemeldet.
-    print("Anmelden ...", file=sys.stderr)
+    # Die Login-Antwort kommt erst, nachdem der Server die Heartbeats aller Monitore
+    # geschickt hat. Solange er damit beschaeftigt ist, beantwortet er andere
+    # Anfragen nicht rechtzeitig, deshalb auf die Antwort warten.
+    print("Anmelden (kann eine Weile dauern) ...", file=sys.stderr)
     sio.emit("login", login, callback=on_login)
-    while not monitors and not answer.get("ok"):
+    while not answer.get("ok"):
         if not changed.wait(LOGIN_TIMEOUT):
             die("keine Antwort auf die Anmeldung")
         changed.clear()
@@ -83,6 +84,8 @@ def connect(url):
             sio.emit("login", login, callback=on_login)
         elif answer and not answer.get("ok"):
             die(f"Anmeldung fehlgeschlagen: {answer.get('msg')}")
+    if not got_list.wait(TIMEOUT):
+        die("Monitorliste nicht erhalten")
     return sio, monitors
 
 
@@ -205,7 +208,7 @@ def main():
             print("\nNichts geaendert. Mit --apply speichern.")
             return
 
-        res = sio.call("getStatusPage", slug, timeout=TIMEOUT)
+        res = sio.call("getStatusPage", slug, timeout=LOGIN_TIMEOUT)
         if not res.get("ok"):
             die(f"Statusseite '{slug}' nicht gefunden: {res.get('msg')}")
         config = res["config"]
@@ -227,7 +230,7 @@ def main():
             public_groups.append(item)
 
         # Das Logo geht unveraendert als URL zurueck, wie im Browser beim Speichern
-        res = sio.call("saveStatusPage", (slug, config, config.get("icon") or "", public_groups), timeout=TIMEOUT)
+        res = sio.call("saveStatusPage", (slug, config, config.get("icon") or "", public_groups), timeout=LOGIN_TIMEOUT)
         if not res.get("ok"):
             die(f"Speichern fehlgeschlagen: {res.get('msg')}")
         print(f"\nGespeichert: {url}/status/{slug}")
