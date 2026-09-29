@@ -175,9 +175,11 @@ def show_changes(slug, groups, before, monitors):
     dropped = sorted(old_group.keys() - placed)
     for mid in dropped:
         print(f"Nicht mehr auf der Statusseite: {old_entry[mid]['name']}")
-    # Gruppen-Monitore aus dem Dashboard gehoeren nicht auf die Statusseite
+    # Eine Seite zeigt entweder einzelne Monitore oder nur die Gruppen-Monitore aus
+    # dem Dashboard (Uebersicht). Fehlend ist nur, was zur Art der Seite passt.
+    overview = all(monitors[i].get("type") == "group" for i in placed)
     missing = sorted(
-        (i for i in monitors.keys() - placed - set(dropped) if monitors[i].get("type") != "group"),
+        (i for i in monitors.keys() - placed - set(dropped) if (monitors[i].get("type") == "group") == overview),
         key=lambda i: monitors[i]["name"].lower(),
     )
     if missing:

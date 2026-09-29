@@ -1,6 +1,6 @@
 # Uptime-Kuma-Statusseite aus einer Datei
 
-Uptime Kuma kann seine Einstellungen nicht aus einer Datei lesen. `uptimekuma-statuspage.py` übernimmt das für die Gruppen der Statusseiten: In `uptimekuma-statuspage.yaml` steht, welcher Monitor in welcher Gruppe erscheint, und das Skript überträgt das per API. Heute setzt es die Seiten `details` und `default` (die in Glance eingebunden sind) gleich. Getestet mit Uptime Kuma 2.5.5.
+Uptime Kuma kann seine Einstellungen nicht aus einer Datei lesen. `uptimekuma-statuspage.py` übernimmt das für die Gruppen der Statusseiten: In `uptimekuma-statuspage.yaml` steht, welcher Monitor in welcher Gruppe erscheint, und das Skript überträgt das per API. Es gibt zwei Dateien: `uptimekuma-statuspage.yaml` für die Seite `details` mit allen Monitoren und `uptimekuma-statuspage-default.yaml` für die Übersicht `default` in Glance, die nur die Gruppen-Monitore aus dem Dashboard zeigt. Getestet mit Uptime Kuma 2.5.5.
 
 Das Skript ändert nur die Gruppen und ihre Reihenfolge. Titel, Beschreibung, CSS, Logo und die Monitore selbst bleiben unverändert. **Monitore anlegen, ändern oder löschen geht weiter nur im GUI.** Die YAML-Datei legt fest, wo sie auf der Statusseite erscheinen.
 
@@ -62,9 +62,7 @@ Exit-Code: 0 = in Ordnung, 1 = YAML passt nicht zu den Monitoren, 2 = Verbindung
 
 ```yaml
 url: http://debian-uptimekuma.lan:3001
-slug:                  # der Teil nach /status/ in der URL
-  - details
-  - default
+slug: details          # der Teil nach /status/ in der URL
 
 groups:
   Netzwerk:
@@ -74,12 +72,19 @@ groups:
     - Glance
 ```
 
-- Alle Seiten unter `slug` bekommen dieselben Gruppen. Eine einzelne Seite geht auch als `slug: details`. Soll eine Seite andere Gruppen zeigen, bekommt sie eine eigene YAML-Datei.
+- `slug` darf auch eine Liste sein, dann bekommen alle Seiten darin dieselben Gruppen. Soll eine Seite andere Gruppen zeigen, bekommt sie eine eigene YAML-Datei.
 - Die Gruppen erscheinen in der Reihenfolge der Datei, die Monitore darin ebenso.
 - Die Namen müssen genau wie in Uptime Kuma geschrieben sein, inklusive Groß- und Kleinschreibung.
 - Ein Monitor darf nur in einer Gruppe stehen.
 - Eine Gruppe, die in der Datei fehlt, wird von der Statusseite gelöscht. Die Monitore darin bleiben in Uptime Kuma erhalten.
-- Ordner aus dem Dashboard (Monitor-Typ „Group“, z. B. „Tasks“) gehören nicht in die Datei. Das Skript meldet sie auch nicht als fehlend.
+- Ordner aus dem Dashboard (Monitor-Typ „Group“, z. B. „Tasks“) gehören nicht in `uptimekuma-statuspage.yaml`. Das Skript meldet sie dort auch nicht als fehlend.
+- Die Übersicht `default` enthält umgekehrt nur solche Gruppen-Monitore. Enthält eine Datei nur Gruppen-Monitore (oder noch gar keine), meldet die Vorschau fehlende Gruppen-Monitore statt einzelner Monitore.
+
+Die Übersicht aufrufen:
+
+```sh
+~/.venvs/kuma/bin/python uptimekuma-statuspage.py uptimekuma-statuspage-default.yaml
+```
 
 Die Monitor-ID steht in der Adresszeile, wenn man den Monitor im GUI öffnet (`/dashboard/37`).
 
