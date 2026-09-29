@@ -2,7 +2,7 @@
 # Kopieren nach truenas-backup-status-to-uptimekuma.conf (liegt neben dem Skript,
 # wird nicht ins Repo eingecheckt) und die Push-URLs aus Uptime Kuma eintragen.
 #
-# Typ: snapshot | cloudsync | replication | rsync  (Ziel = Task-ID, siehe --list)
+# Typ: snapshot | cloudsync | cloudbackup | replication | rsync  (Ziel = Task-ID, siehe --list)
 #      file                                       (Ziel = Ordner, neueste Datei zaehlt)
 #      vzdump                                     (Ziel = Proxmox-dump-Ordner, neuestes Archiv je Gast zaehlt)
 # max_h: so viele Stunden darf der letzte Erfolg her sein, danach DOWN
