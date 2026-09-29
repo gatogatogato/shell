@@ -5,7 +5,7 @@
 #
 # Reihenfolge der Gruppen: was andere brauchen, steht weiter oben.
 
-url: https://uptimekuma.mythenstrasse56.net
+url: http://debian-uptimekuma.lan:3001
 slug: details
 
 groups:
