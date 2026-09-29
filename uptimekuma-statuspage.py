@@ -26,6 +26,7 @@ except ImportError:
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONFIG = os.path.join(SCRIPT_DIR, "uptimekuma-statuspage.yaml")
 TIMEOUT = 30
+LOGIN_TIMEOUT = 300
 
 
 def die(msg):
@@ -35,33 +36,53 @@ def die(msg):
 
 def connect(url):
     """Meldet sich per Socket.IO an und liefert (client, {id: monitor})."""
+    user = os.environ.get("KUMA_USER") or input("Uptime-Kuma-Benutzer: ")
+    password = os.environ.get("KUMA_PASSWORD") or getpass.getpass("Passwort: ")
+    login = {"username": user, "password": password, "token": ""}
+
     sio = socketio.Client()
     monitors = {}
-    got_list = threading.Event()
+    ready = threading.Event()   # Server hat seine Handler registriert
+    changed = threading.Event() # Monitorliste oder Antwort auf den Login ist da
+    answer = {}
+
+    @sio.on("info")
+    def on_info(data):
+        ready.set()
 
     @sio.on("monitorList")
     def on_monitor_list(data):
         monitors.clear()
         monitors.update({int(k): v for k, v in data.items()})
-        got_list.set()
+        changed.set()
+
+    def on_login(res):
+        answer.update(res)
+        changed.set()
 
     try:
         sio.connect(url, wait_timeout=TIMEOUT)
     except socketio.exceptions.ConnectionError as e:
         die(f"keine Verbindung zu {url}: {e}")
+    # Uptime Kuma schickt "info", bevor es auf "login" hoert; frueher gesendet geht verloren
+    if not ready.wait(TIMEOUT):
+        die("Server antwortet nicht (kein info)")
 
-    user = os.environ.get("KUMA_USER") or input("Uptime-Kuma-Benutzer: ")
-    password = os.environ.get("KUMA_PASSWORD") or getpass.getpass("Passwort: ")
-    login = {"username": user, "password": password, "token": ""}
-    res = sio.call("login", login, timeout=TIMEOUT)
-    if res.get("tokenRequired"):
-        login["token"] = input("2FA-Code: ").strip()
-        res = sio.call("login", login, timeout=TIMEOUT)
-    if not res.get("ok"):
-        die(f"Anmeldung fehlgeschlagen: {res.get('msg')}")
-
-    if not got_list.wait(TIMEOUT):
-        die("Monitorliste nicht erhalten")
+    # Die Login-Antwort kommt erst, nachdem der Server alle Heartbeats geschickt hat,
+    # das dauert bei vielen Monitoren lange. Die Monitorliste kommt vorher und
+    # heisst ebenfalls: angemeldet.
+    print("Anmelden ...", file=sys.stderr)
+    sio.emit("login", login, callback=on_login)
+    while not monitors and not answer.get("ok"):
+        if not changed.wait(LOGIN_TIMEOUT):
+            die("keine Antwort auf die Anmeldung")
+        changed.clear()
+        if answer.get("tokenRequired"):
+            answer.clear()
+            login["token"] = input("2FA-Code: ").strip()
+            sio.emit("login", login, callback=on_login)
+        elif answer and not answer.get("ok"):
+            die(f"Anmeldung fehlgeschlagen: {answer.get('msg')}")
     return sio, monitors
 
 
