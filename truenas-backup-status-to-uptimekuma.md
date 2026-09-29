@@ -2,6 +2,54 @@
 
 `truenas-backup-status-to-uptimekuma.sh` läuft stündlich auf TrueNAS. Es prüft die Backup-Tasks und meldet jeden per Push an einen eigenen Monitor in Uptime Kuma. So sieht man die TrueNAS-Backups dort neben den anderen Cronjobs (Ansible-Updates, Vaultwarden-Backup) und bekommt bei Fehlern eine Pushover-Meldung.
 
+## Überblick
+
+### Ablauf
+
+```
+Proxmox-Cluster (n01, n02)          Vaultwarden-Container          TrueNAS-eigene Tasks
+vzdump So 01:00, alle Gäste         Backup täglich 00:30           Snapshots, TrueCloud, Storj
+        │ SMB (Storage NAS-SMB)             │ scp                          │
+        ▼                                   ▼                              │
+/mnt/tank01/proxmox-raw-backups/dump   /mnt/tank01/vaultwarden-backups    │
+        └──────────────┬────────────────────┴──────────────────────────────┘
+                       ▼
+   truenas-backup-status-to-uptimekuma.sh  (TrueNAS Cron, stündlich Minute 15)
+                       │ ein HTTPS-Push pro Konfig-Zeile: status=up|down, msg=...
+                       ▼
+   Uptime Kuma (debian-uptimekuma.lan), ein Push-Monitor pro Zeile
+                       │ bei Statuswechsel UP↔DOWN
+                       ▼
+                    Pushover
+```
+
+1. Die Backups selbst laufen unabhängig vom Skript: Proxmox schreibt seine vzdump-Archive über den SMB-Share in das Dataset `proxmox-raw-backups`, Vaultwarden kopiert sein Archiv per `scp` nach `vaultwarden-backups`, TrueNAS macht Snapshots und Cloud-Uploads.
+2. Stündlich um Minute 15 liest das Skript seine Konfig. Pro Zeile prüft es einen Task (über `midclt`) oder einen Ordner (Dateialter).
+3. Pro Zeile schickt es genau einen Push an Uptime Kuma: `up` oder `down` mit einer kurzen Nachricht, z. B. `13 Gaeste gesichert` oder `117 vor 192 h`.
+4. Uptime Kuma zeigt den Status und schickt bei einem Wechsel (UP→DOWN oder zurück) eine Pushover-Meldung mit dieser Nachricht. Ein normaler UP-Push erzeugt keine Meldung.
+5. Kommt länger als das Heartbeat-Intervall (2 h) gar kein Push, geht der Monitor ebenfalls auf DOWN. Das fängt den Fall ab, dass das Skript oder der Cron nicht mehr läuft.
+
+### Wo was liegt
+
+| Was | Wo |
+|---|---|
+| Skript | TrueNAS: `/mnt/tank01/scripts/truenas-backup-status-to-uptimekuma.sh` |
+| Konfig mit den Push-URLs | TrueNAS: `/mnt/tank01/scripts/truenas-backup-status-to-uptimekuma.conf` (nur root, nicht im Repo) |
+| Vorlage der Konfig | dieses Repo: `truenas-backup-status-to-uptimekuma.conf.example` |
+| Cron Job | TrueNAS: System > Advanced Settings > Cron Jobs, „Backup-Status an Uptime Kuma“, root, stündlich Minute 15 |
+| Proxmox-Backups | TrueNAS: `/mnt/tank01/proxmox-raw-backups/dump`, in Proxmox als Storage `NAS-SMB` (Job in `/etc/pve/jobs.cfg`, So 01:00, keep-last 4) |
+| Vaultwarden-Backups | TrueNAS: `/mnt/tank01/vaultwarden-backups` |
+| Monitore und Benachrichtigung | Uptime Kuma auf debian-uptimekuma.lan, Benachrichtigung Pushover |
+
+### Wohin gemeldet wird
+
+| Ereignis | Meldung |
+|---|---|
+| Ein Check ist DOWN (Backup fehlt, zu alt, leer, Task mit Fehler) | Uptime Kuma, Monitor rot, Pushover mit Grund |
+| Skript läuft nicht mehr (Cron weg, TrueNAS aus) | Uptime Kuma nach 2 h ohne Push, Pushover |
+| Fehler in der Konfig oder Uptime Kuma nimmt den Push nicht an | Exit-Code 1, TrueNAS schickt eine Cron-Fehlermail bzw. einen Alert |
+| Alles OK | nur grüner Balken in Uptime Kuma |
+
 ## Was geprüft wird
 
 | Typ in der Konfig | Quelle | DOWN, wenn |
