@@ -4,6 +4,7 @@
 #
 # Typ: snapshot | cloudsync | replication | rsync  (Ziel = Task-ID, siehe --list)
 #      file                                       (Ziel = Ordner, neueste Datei zaehlt)
+#      vzdump                                     (Ziel = Proxmox-dump-Ordner, neuestes Archiv je Gast zaehlt)
 # max_h: so viele Stunden darf der letzte Erfolg her sein, danach DOWN
 #
 # Typ       Ziel                          max_h  Push-URL
@@ -14,3 +15,4 @@ snapshot    4                             26     https://uptimekuma.example/api/
 snapshot    5                             26     https://uptimekuma.example/api/push/TOKEN   # ha-backups
 cloudsync   5                             26     https://uptimekuma.example/api/push/TOKEN   # Storj lightroom-archive
 file        /mnt/tank01/vaultwarden-backups  26  https://uptimekuma.example/api/push/TOKEN   # eingehendes Vaultwarden-Backup
+vzdump      /mnt/tank01/PFAD/dump         174    https://uptimekuma.example/api/push/TOKEN   # Proxmox vzdump (Storage NAS-SMB), So 01:00, Pfad anpassen
