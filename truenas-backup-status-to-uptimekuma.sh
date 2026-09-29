@@ -94,6 +94,37 @@ check_file() {
     fi
 }
 
+# Proxmox-vzdump-Ordner: das neueste Archiv jedes Gasts muss juenger als max_hours sein.
+# Gaeste, deren neuestes Archiv aelter als 3 * max_hours ist, gelten als entfernt
+# (vzdump raeumt ihre alten Archive nicht weg) und werden nur mitgezaehlt.
+check_vzdump() {
+    local dir=$1 max_hours=$2 now vmid mtime size age total=0 retired=0 bad=()
+    [[ -d "$dir" ]] || { echo "down	Ordner ${dir} fehlt"; return; }
+    now=$(date +%s)
+    while read -r vmid mtime size; do
+        age=$(( ( now - mtime ) / 3600 ))
+        if (( age > 3 * max_hours )); then
+            retired=$(( retired + 1 ))
+        elif (( size == 0 )); then
+            bad+=("${vmid} leer")
+        elif (( age > max_hours )); then
+            bad+=("${vmid} vor ${age} h")
+        fi
+        total=$(( total + 1 ))
+    done < <(find "$dir" -maxdepth 1 -type f -name 'vzdump-*' ! -name '*.log' ! -name '*.notes' \
+                 -printf '%f %T@ %s\n' 2>/dev/null \
+             | sed -nE 's/^vzdump-(lxc|qemu)-([0-9]+)-[^ ]* ([0-9]+)[.0-9]* ([0-9]+)$/\2 \3 \4/p' \
+             | sort -k1,1n -k2,2n | awk '{ last[$1] = $0 } END { for (v in last) print last[v] }')
+    (( total == 0 )) && { echo "down	keine vzdump-Archive in ${dir}"; return; }
+    local active=$(( total - retired )) note=""
+    (( retired )) && note=", ${retired} alte Gaeste ignoriert"
+    if (( ${#bad[@]} )); then
+        echo "down	${#bad[@]} von ${active} Gaesten ohne frisches Backup (erlaubt ${max_hours} h): ${bad[*]}${note}"
+    else
+        echo "up	${active} Gaeste gesichert${note}"
+    fi
+}
+
 list_tasks() {
     echo "Typ          ID  Name                                   letzter Status"
     local type
@@ -125,6 +156,8 @@ while read -r line; do
     echo "${type} ${target}"
     if [[ "$type" == file ]]; then
         result=$(check_file "$target" "$max_hours")
+    elif [[ "$type" == vzdump ]]; then
+        result=$(check_vzdump "$target" "$max_hours")
     elif [[ -n "${QUERY[$type]:-}" ]]; then
         result=$(check_task "$type" "$target" "$max_hours")
     else
