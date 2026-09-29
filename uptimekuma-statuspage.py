@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Setzt die Gruppen einer Uptime-Kuma-Statusseite aus einer YAML-Datei.
+# Setzt die Gruppen einer oder mehrerer Uptime-Kuma-Statusseiten aus einer YAML-Datei.
 # Getestet mit Uptime Kuma 2.5.5, Doku: uptimekuma-statuspage.md
 #
 #   uptimekuma-statuspage.py            zeigen, was sich aendern wuerde (aendert nichts)
 #   uptimekuma-statuspage.py --apply    Gruppen wirklich speichern
-#   uptimekuma-statuspage.py --export   aktuelle Statusseite als YAML ausgeben
+#   uptimekuma-statuspage.py --export --slug details   aktuelle Statusseite als YAML
 #
 # Zugang: KUMA_USER und KUMA_PASSWORD aus der Umgebung, sonst wird gefragt.
 # Passwoerter gehoeren nicht in die YAML-Datei.
@@ -155,6 +155,65 @@ def resolve(wanted, monitors):
     return result, errors
 
 
+def show_changes(slug, groups, before, monitors):
+    """Gibt aus, was sich auf einer Statusseite aendert. Liefert (alte Eintraege, alte Gruppen-IDs)."""
+    old_group, old_entry, old_group_id = {}, {}, {}
+    for g in before:
+        old_group_id[g["name"].strip()] = g["id"]
+        for m in g["monitorList"]:
+            old_group[m["id"]] = g["name"].strip()
+            old_entry[m["id"]] = m
+
+    print(f"== Statusseite {slug} ==")
+    for group, ids in groups.items():
+        print(f"{group}:")
+        for mid in ids:
+            prev = old_group.get(mid)
+            note = "" if prev == group else ("  (neu)" if prev is None else f"  (vorher {prev})")
+            print(f"  - {monitors[mid]['name']}{note}")
+    placed = {mid for ids in groups.values() for mid in ids}
+    dropped = sorted(old_group.keys() - placed)
+    for mid in dropped:
+        print(f"Nicht mehr auf der Statusseite: {old_entry[mid]['name']}")
+    # Gruppen-Monitore aus dem Dashboard gehoeren nicht auf die Statusseite
+    missing = sorted(
+        (i for i in monitors.keys() - placed - set(dropped) if monitors[i].get("type") != "group"),
+        key=lambda i: monitors[i]["name"].lower(),
+    )
+    if missing:
+        print("Monitore ohne Gruppe (erscheinen nicht): " + ", ".join(monitors[i]["name"] for i in missing))
+    return old_entry, old_group_id
+
+
+def save(sio, url, slug, groups, old_entry, old_group_id):
+    res = sio.call("getStatusPage", slug, timeout=LOGIN_TIMEOUT)
+    if not res.get("ok"):
+        die(f"Statusseite '{slug}' nicht gefunden: {res.get('msg')}")
+    config = res["config"]
+
+    public_groups = []
+    for group, ids in groups.items():
+        entries = []
+        for mid in ids:
+            entry = {"id": mid}
+            old = old_entry.get(mid, {})
+            if "sendUrl" in old:
+                entry["sendUrl"] = old["sendUrl"]
+            if old.get("url") is not None:
+                entry["url"] = old["url"]
+            entries.append(entry)
+        item = {"name": group, "monitorList": entries}
+        if group in old_group_id:
+            item["id"] = old_group_id[group]
+        public_groups.append(item)
+
+    # Das Logo geht unveraendert als URL zurueck, wie im Browser beim Speichern
+    res = sio.call("saveStatusPage", (slug, config, config.get("icon") or "", public_groups), timeout=LOGIN_TIMEOUT)
+    if not res.get("ok"):
+        die(f"Speichern fehlgeschlagen ({slug}): {res.get('msg')}")
+    print(f"Gespeichert: {url}/status/{slug}")
+
+
 def main():
     ap = argparse.ArgumentParser(description="Gruppen einer Uptime-Kuma-Statusseite aus YAML setzen")
     ap.add_argument("config", nargs="?", default=DEFAULT_CONFIG, help="YAML-Datei (Standard: neben dem Skript)")
@@ -172,19 +231,24 @@ def main():
     elif not args.export:
         die(f"{args.config} nicht gefunden")
     url = (args.url or cfg.get("url") or "").rstrip("/")
-    slug = args.slug or cfg.get("slug")
-    if not url or not slug:
+    # slug darf eine Liste sein: dann bekommen alle Seiten dieselben Gruppen
+    slugs = [args.slug] if args.slug else cfg.get("slug") or []
+    if isinstance(slugs, str):
+        slugs = [slugs]
+    if not url or not slugs:
         die("url und slug fehlen (in der YAML-Datei oder per --url/--slug)")
 
     if args.export:
-        export(url, slug)
+        if len(slugs) > 1:
+            die(f"--export braucht eine Statusseite, z. B. --slug {slugs[0]}")
+        export(url, slugs[0])
         return
 
     wanted = cfg.get("groups") or {}
     if not wanted:
         die("keine Gruppen in der YAML-Datei")
 
-    before = current_groups(url, slug)
+    before = {slug: current_groups(url, slug) for slug in slugs}
     sio, monitors = connect(url, args.debug)
     try:
         groups, errors = resolve(wanted, monitors)
@@ -194,62 +258,18 @@ def main():
                 print(f"  - {e}", file=sys.stderr)
             sys.exit(1)
 
-        # Bisherige Gruppe und Einstellungen (Link anzeigen) je Monitor merken
-        old_group, old_entry, old_group_id = {}, {}, {}
-        for g in before:
-            old_group_id[g["name"].strip()] = g["id"]
-            for m in g["monitorList"]:
-                old_group[m["id"]] = g["name"].strip()
-                old_entry[m["id"]] = m
-
-        for group, ids in groups.items():
-            print(f"{group}:")
-            for mid in ids:
-                prev = old_group.get(mid)
-                note = "" if prev == group else ("  (neu)" if prev is None else f"  (vorher {prev})")
-                print(f"  - {monitors[mid]['name']}{note}")
-        placed = {mid for ids in groups.values() for mid in ids}
-        dropped = sorted(old_group.keys() - placed)
-        for mid in dropped:
-            print(f"Nicht mehr auf der Statusseite: {old_entry[mid]['name']}")
-        # Gruppen-Monitore aus dem Dashboard gehoeren nicht auf die Statusseite
-        missing = sorted(
-            (i for i in monitors.keys() - placed - set(dropped) if monitors[i].get("type") != "group"),
-            key=lambda i: monitors[i]["name"].lower(),
-        )
-        if missing:
-            print("Monitore ohne Gruppe (erscheinen nicht): " + ", ".join(monitors[i]["name"] for i in missing))
+        old = {}
+        for i, slug in enumerate(slugs):
+            if i:
+                print()
+            old[slug] = show_changes(slug, groups, before[slug], monitors)
 
         if not args.apply:
             print("\nNichts geaendert. Mit --apply speichern.")
             return
-
-        res = sio.call("getStatusPage", slug, timeout=LOGIN_TIMEOUT)
-        if not res.get("ok"):
-            die(f"Statusseite '{slug}' nicht gefunden: {res.get('msg')}")
-        config = res["config"]
-
-        public_groups = []
-        for group, ids in groups.items():
-            entries = []
-            for mid in ids:
-                entry = {"id": mid}
-                old = old_entry.get(mid, {})
-                if "sendUrl" in old:
-                    entry["sendUrl"] = old["sendUrl"]
-                if old.get("url") is not None:
-                    entry["url"] = old["url"]
-                entries.append(entry)
-            item = {"name": group, "monitorList": entries}
-            if group in old_group_id:
-                item["id"] = old_group_id[group]
-            public_groups.append(item)
-
-        # Das Logo geht unveraendert als URL zurueck, wie im Browser beim Speichern
-        res = sio.call("saveStatusPage", (slug, config, config.get("icon") or "", public_groups), timeout=LOGIN_TIMEOUT)
-        if not res.get("ok"):
-            die(f"Speichern fehlgeschlagen: {res.get('msg')}")
-        print(f"\nGespeichert: {url}/status/{slug}")
+        print()
+        for slug in slugs:
+            save(sio, url, slug, groups, *old[slug])
     finally:
         sio.disconnect()
 

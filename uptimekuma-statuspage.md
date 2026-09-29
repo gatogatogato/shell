@@ -1,6 +1,6 @@
 # Uptime-Kuma-Statusseite aus einer Datei
 
-Uptime Kuma kann seine Einstellungen nicht aus einer Datei lesen. `uptimekuma-statuspage.py` übernimmt das für die Gruppen einer Statusseite: In `uptimekuma-statuspage.yaml` steht, welcher Monitor in welcher Gruppe erscheint, und das Skript überträgt das per API. Getestet mit Uptime Kuma 2.5.5.
+Uptime Kuma kann seine Einstellungen nicht aus einer Datei lesen. `uptimekuma-statuspage.py` übernimmt das für die Gruppen der Statusseiten: In `uptimekuma-statuspage.yaml` steht, welcher Monitor in welcher Gruppe erscheint, und das Skript überträgt das per API. Heute setzt es die Seiten `details` und `default` (die in Glance eingebunden sind) gleich. Getestet mit Uptime Kuma 2.5.5.
 
 Das Skript ändert nur die Gruppen und ihre Reihenfolge. Titel, Beschreibung, CSS, Logo und die Monitore selbst bleiben unverändert. **Monitore anlegen, ändern oder löschen geht weiter nur im GUI.** Die YAML-Datei legt fest, wo sie auf der Statusseite erscheinen.
 
@@ -48,21 +48,23 @@ Die Anmeldung kann eine Minute dauern, weil Uptime Kuma dabei die Historie aller
 |---|---|
 | `uptimekuma-statuspage.py` | zeigt, was sich ändern würde, ändert nichts |
 | `uptimekuma-statuspage.py --apply` | speichert die Gruppen |
-| `uptimekuma-statuspage.py --export` | gibt die aktuelle Statusseite als YAML aus |
+| `uptimekuma-statuspage.py --export --slug details` | gibt die aktuelle Statusseite als YAML aus |
 | `uptimekuma-statuspage.py andere.yaml` | nimmt eine andere YAML-Datei, z. B. für eine zweite Statusseite |
-| `--url …`, `--slug …` | überschreibt `url` bzw. `slug` aus der YAML-Datei |
+| `--url …`, `--slug …` | überschreibt `url` bzw. `slug` aus der YAML-Datei, `--slug` setzt dann nur diese eine Seite |
 
 Vor jedem Aufruf steht `~/.venvs/kuma/bin/python`.
 
-In der Vorschau steht neben jedem Monitor, was sich ändert: `(neu)` heißt, er war bisher nicht auf der Statusseite. `(vorher X)` heißt, er war bisher in Gruppe X. Ohne Zusatz bleibt er, wo er ist.
+Die Vorschau zeigt jede Seite einzeln. Neben jedem Monitor steht, was sich ändert: `(neu)` heißt, er war bisher nicht auf der Statusseite. `(vorher X)` heißt, er war bisher in Gruppe X. Ohne Zusatz bleibt er, wo er ist.
 
 Exit-Code: 0 = in Ordnung, 1 = YAML passt nicht zu den Monitoren, 2 = Verbindung, Anmeldung oder Speichern fehlgeschlagen.
 
 ## Die YAML-Datei
 
 ```yaml
-url: https://uptimekuma.mythenstrasse56.net
-slug: details          # der Teil nach /status/ in der URL
+url: http://debian-uptimekuma.lan:3001
+slug:                  # der Teil nach /status/ in der URL
+  - details
+  - default
 
 groups:
   Netzwerk:
@@ -72,6 +74,7 @@ groups:
     - Glance
 ```
 
+- Alle Seiten unter `slug` bekommen dieselben Gruppen. Eine einzelne Seite geht auch als `slug: details`. Soll eine Seite andere Gruppen zeigen, bekommt sie eine eigene YAML-Datei.
 - Die Gruppen erscheinen in der Reihenfolge der Datei, die Monitore darin ebenso.
 - Die Namen müssen genau wie in Uptime Kuma geschrieben sein, inklusive Groß- und Kleinschreibung.
 - Ein Monitor darf nur in einer Gruppe stehen.
@@ -97,7 +100,7 @@ Ein Dienst mit zwei Monitoren wird aufgeteilt: Pi-hole DNS gehört zu Netzwerk, 
 ## Aktuellen Stand sichern
 
 ```sh
-~/.venvs/kuma/bin/python uptimekuma-statuspage.py --export > aktuell.yaml
+~/.venvs/kuma/bin/python uptimekuma-statuspage.py --export --slug details > aktuell.yaml
 ```
 
 Die Ausgabe hat dasselbe Format wie die YAML-Datei, nur ohne Kommentare. Sie eignet sich als Sicherung vor größeren Umbauten und als Ausgangspunkt für eine neue Statusseite.
