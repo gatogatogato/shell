@@ -1,4 +1,5 @@
-# Gruppen der Statusseiten "details" und "default" in Uptime Kuma.
+# Gruppen der Statusseite "details" in Uptime Kuma.
+# Die Uebersicht "default" steht in uptimekuma-statuspage-default.yaml.
 # Ablauf und Aufruf: uptimekuma-statuspage.md
 # Die Monitore muessen genau so heissen wie in Uptime Kuma. Bei gleichen Namen
 # statt des Namens die Monitor-ID als Zahl eintragen.
@@ -6,9 +7,7 @@
 # Reihenfolge der Gruppen: was andere brauchen, steht weiter oben.
 
 url: http://debian-uptimekuma.lan:3001
-slug:                  # der Teil nach /status/ in der URL; alle Seiten bekommen dieselben Gruppen
-  - details
-  - default
+slug: details          # der Teil nach /status/ in der URL
 
 groups:
   Netzwerk:
