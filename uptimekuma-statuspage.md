@@ -101,3 +101,14 @@ Ein Dienst mit zwei Monitoren wird aufgeteilt: Pi-hole DNS gehört zu Netzwerk, 
 ```
 
 Die Ausgabe hat dasselbe Format wie die YAML-Datei, nur ohne Kommentare. Sie eignet sich als Sicherung vor größeren Umbauten und als Ausgangspunkt für eine neue Statusseite.
+
+## Wenn die Anmeldung hängt
+
+Während der Anmeldung meldet das Skript alle 30 Sekunden, wie lange es schon wartet. Nach 5 Minuten bricht es ab.
+
+- **„Verbindung zum Server wurde getrennt“ oder kein Ende in Sicht:** Oft trennt ein Reverse Proxy (Nginx Proxy Manager) lange Verbindungen. Dann direkt mit Uptime Kuma verbinden, am Proxy vorbei:
+  ```sh
+  ~/.venvs/kuma/bin/python uptimekuma-statuspage.py --url http://debian-uptimekuma.lan:3001
+  ```
+  (3001 ist der Standard-Port von Uptime Kuma.) Klappt das, kann die `url` in der YAML-Datei dauerhaft so bleiben.
+- **`--debug`** zeigt den ganzen Socket.IO-Verkehr, zum Beispiel ob die Verbindung per `websocket` oder `polling` läuft und wann sie abbricht.
