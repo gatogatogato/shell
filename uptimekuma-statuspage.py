@@ -34,18 +34,20 @@ def die(msg):
     sys.exit(2)
 
 
-def connect(url):
+def connect(url, debug=False):
     """Meldet sich per Socket.IO an und liefert (client, {id: monitor})."""
     user = os.environ.get("KUMA_USER") or input("Uptime-Kuma-Benutzer: ")
     password = os.environ.get("KUMA_PASSWORD") or getpass.getpass("Passwort: ")
     login = {"username": user, "password": password, "token": ""}
 
-    sio = socketio.Client()
+    # Ohne automatisches Neuverbinden: eine neue Verbindung waere nicht angemeldet
+    sio = socketio.Client(reconnection=False, logger=debug, engineio_logger=debug)
     monitors = {}
     ready = threading.Event()   # Server hat seine Handler registriert
     changed = threading.Event() # Antwort auf den Login ist da
     got_list = threading.Event()
     answer = {}
+    lost = threading.Event()
 
     @sio.on("info")
     def on_info(data):
@@ -56,6 +58,11 @@ def connect(url):
         monitors.clear()
         monitors.update({int(k): v for k, v in data.items()})
         got_list.set()
+
+    @sio.on("disconnect")
+    def on_disconnect(*args):
+        lost.set()
+        changed.set()
 
     def on_login(res):
         answer.update(res)
@@ -74,10 +81,18 @@ def connect(url):
     # Anfragen nicht rechtzeitig, deshalb auf die Antwort warten.
     print("Anmelden (kann eine Weile dauern) ...", file=sys.stderr)
     sio.emit("login", login, callback=on_login)
+    waited = 0
     while not answer.get("ok"):
-        if not changed.wait(LOGIN_TIMEOUT):
-            die("keine Antwort auf die Anmeldung")
+        if not changed.wait(30):
+            waited += 30
+            if waited >= LOGIN_TIMEOUT:
+                die(f"keine Antwort auf die Anmeldung nach {waited} s")
+            print(f"  warte seit {waited} s (Verbindung: {sio.transport()}) ...", file=sys.stderr)
+            continue
         changed.clear()
+        if lost.is_set():
+            die("Verbindung zum Server wurde getrennt. Laeuft Uptime Kuma hinter einem "
+                "Reverse Proxy, direkt verbinden, z. B. --url http://debian-uptimekuma.lan:3001")
         if answer.get("tokenRequired"):
             answer.clear()
             login["token"] = input("2FA-Code: ").strip()
@@ -147,6 +162,7 @@ def main():
     ap.add_argument("--export", action="store_true", help="aktuelle Statusseite als YAML ausgeben")
     ap.add_argument("--url", help="Uptime-Kuma-URL (statt url aus der YAML-Datei)")
     ap.add_argument("--slug", help="Statusseite (statt slug aus der YAML-Datei)")
+    ap.add_argument("--debug", action="store_true", help="Socket.IO-Verkehr ausgeben")
     args = ap.parse_args()
 
     cfg = {}
@@ -169,7 +185,7 @@ def main():
         die("keine Gruppen in der YAML-Datei")
 
     before = current_groups(url, slug)
-    sio, monitors = connect(url)
+    sio, monitors = connect(url, args.debug)
     try:
         groups, errors = resolve(wanted, monitors)
         if errors:
