@@ -51,9 +51,12 @@ push() {
     local url=${1%%\?*} status=$2 msg=$3
     echo "  -> ${status}: ${msg}"
     (( DRY_RUN )) && return 0
-    curl -fsS -m 15 --retry 2 -o /dev/null --get \
-        --data-urlencode "status=${status}" --data-urlencode "msg=${msg}" "$url" \
-        || { echo "  !! Push an Uptime Kuma fehlgeschlagen" >&2; return 1; }
+    local answer
+    # Uptime Kuma antwortet {"ok":true}; alles andere (falscher Token, pausierter Monitor) ist ein Fehler.
+    answer=$(curl -sS -m 15 --retry 2 --get \
+        --data-urlencode "status=${status}" --data-urlencode "msg=${msg}" "$url" 2>&1)
+    [[ "$answer" == *'"ok":true'* ]] \
+        || { echo "  !! Push an Uptime Kuma fehlgeschlagen: ${answer:-keine Antwort}" >&2; return 1; }
 }
 
 check_task() {
