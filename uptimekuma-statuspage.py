@@ -193,7 +193,11 @@ def main():
         dropped = sorted(old_group.keys() - placed)
         for mid in dropped:
             print(f"Nicht mehr auf der Statusseite: {old_entry[mid]['name']}")
-        missing = sorted(monitors.keys() - placed - set(dropped), key=lambda i: monitors[i]["name"].lower())
+        # Gruppen-Monitore aus dem Dashboard gehoeren nicht auf die Statusseite
+        missing = sorted(
+            (i for i in monitors.keys() - placed - set(dropped) if monitors[i].get("type") != "group"),
+            key=lambda i: monitors[i]["name"].lower(),
+        )
         if missing:
             print("Monitore ohne Gruppe (erscheinen nicht): " + ", ".join(monitors[i]["name"] for i in missing))
 
