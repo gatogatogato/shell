@@ -1,5 +1,5 @@
 # Gruppen der Statusseite "details" in Uptime Kuma.
-# Anwenden: python3 uptimekuma-statuspage.py (zeigt nur an), dann mit --apply.
+# Ablauf und Aufruf: uptimekuma-statuspage.md
 # Die Monitore muessen genau so heissen wie in Uptime Kuma. Bei gleichen Namen
 # statt des Namens die Monitor-ID als Zahl eintragen.
 #
