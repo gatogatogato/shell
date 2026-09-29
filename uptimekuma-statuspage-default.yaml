@@ -1,14 +1,9 @@
-# Statusseite "default" in Uptime Kuma: die Uebersicht in Glance.
-# Sie zeigt nur die Gruppen-Monitore aus dem Dashboard (Monitor-Typ "Group"),
-# nicht die einzelnen Monitore darin. Ablauf und Aufruf: uptimekuma-statuspage.md
-#
-#   ~/.venvs/kuma/bin/python uptimekuma-statuspage.py uptimekuma-statuspage-default.yaml
-#
-# Solange die Gruppe unten leer ist, zeigt die Vorschau unter "Monitore ohne Gruppe"
-# alle Gruppen-Monitore. Diese Namen hier eintragen, erst dann mit --apply speichern.
-
 url: http://debian-uptimekuma.lan:3001
 slug: default
-
 groups:
-  Übersicht: []
+  Groups:
+  - Applications
+  - HomePods
+  - Proxmox virtualization
+  - Network and Infrastructure
+  - Tasks
