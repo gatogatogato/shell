@@ -1,0 +1,55 @@
+# Gruppen der Statusseite "details" in Uptime Kuma.
+# Anwenden: python3 uptimekuma-statuspage.py (zeigt nur an), dann mit --apply.
+# Die Monitore muessen genau so heissen wie in Uptime Kuma. Bei gleichen Namen
+# statt des Namens die Monitor-ID als Zahl eintragen.
+#
+# Reihenfolge der Gruppen: was andere brauchen, steht weiter oben.
+
+url: https://uptimekuma.mythenstrasse56.net
+slug: details
+
+groups:
+  Netzwerk:
+    - Unifi Cloud Gateway Ultra
+    - Unifi Switch (USW-Lite-16-PoE)
+    - Unifi U6+ EG
+    - Unifi U6+ OG
+    - Unifi U6+ UG
+    - Pi-hole DNS .99
+    - Pi-hole DNS .59
+    - Lokale DNS-Namen
+
+  Plattform:
+    - Proxmox Node 01
+    - Proxmox Node 02
+    - Proxmox Node 03
+    - TrueNas
+    - Pi-hole Container .99
+    - Pi-hole Container .59
+    - Ansible-Server
+    - flickr
+    - hercules
+    - camsnaps
+    - mbusmaster
+
+  Dienste:
+    - Glance
+    - Change Detection
+    - Nginx Proxy Manager
+    - Home Assistant
+    - NextCloud
+    - VaultWarden
+    - gatogatogato.ch
+
+  Geräte:
+    - HomePod Büro
+    - HomePod Küche
+    - HomePod Schlafzimmer
+    - HomePod Sportzimmer
+    - HomePod Wohnzimmer
+    - Velux Gateway
+    - Zigbee stick SLZB-06M
+    - eBUSd Controller
+
+  Jobs:
+    - Ansible Updates
