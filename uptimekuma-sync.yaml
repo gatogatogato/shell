@@ -1,0 +1,16 @@
+# Welche Monitore uptimekuma-sync.py aus dem Inventar anlegt. Ablauf: uptimekuma-sync.md
+
+url: http://debian-uptimekuma.lan:3001     # direkt, nicht ueber NPM (Socket-Login haengt sonst)
+inventar: http://debian-inventar.lan:8080  # liest /api/devices
+
+group: Automatisch (Inventar)   # Gruppen-Monitor fuer alles, was das Skript anlegt
+tag: inventar                   # nur Monitore mit diesem Tag fasst das Skript an
+
+ping: true      # Ping fuer jeden statischen oder reservierten Host mit DNS-Namen
+http: true      # HTTPS fuer jede aktive NPM-Domain (401/403 der Access-Liste zaehlt als up)
+interval: 60    # Sekunden
+retries: 1      # Fehlversuche bis "down"
+
+# DNS-Namen, IPs oder Domains, die keinen Monitor bekommen
+exclude:
+  # - debian-hercules.lan    # absichtlich meist aus

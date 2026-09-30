@@ -62,3 +62,7 @@ groups:
     - Snapshots 5
     - Cloud Sync
     - Github Mirror Push
+
+  # alle Monitore mit dem Tag "inventar", angelegt von uptimekuma-sync.py
+  Automatisch (Inventar):
+    - tag: inventar

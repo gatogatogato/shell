@@ -53,6 +53,12 @@ def connect(url, debug=False):
     def on_info(data):
         ready.set()
 
+    sio.notifications = []  # fuer uptimekuma-sync.py: Benachrichtigungen mit "Standard"
+
+    @sio.on("notificationList")
+    def on_notification_list(data):
+        sio.notifications = data
+
     @sio.on("monitorList")
     def on_monitor_list(data):
         monitors.clear()
@@ -129,7 +135,17 @@ def resolve(wanted, monitors):
     result, errors, seen = {}, [], {}
     for group, items in wanted.items():
         ids = []
+        expanded = []
         for item in items or []:
+            # {tag: inventar}: alle Monitore mit diesem Tag, z. B. die von uptimekuma-sync.py
+            if isinstance(item, dict) and "tag" in item:
+                tagged = sorted((mid for mid, m in monitors.items() if m.get("type") != "group"
+                                 and any(t.get("name") == item["tag"] for t in m.get("tags") or [])),
+                                key=lambda mid: monitors[mid]["name"].lower())
+                expanded += [mid for mid in tagged if mid not in seen]
+            else:
+                expanded.append(item)
+        for item in expanded:
             if isinstance(item, int):
                 if item not in monitors:
                     errors.append(f"[{group}] Monitor-ID {item} gibt es nicht")

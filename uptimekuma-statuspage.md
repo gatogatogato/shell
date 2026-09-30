@@ -2,7 +2,7 @@
 
 Uptime Kuma kann seine Einstellungen nicht aus einer Datei lesen. `uptimekuma-statuspage.py` übernimmt das für die Gruppen der Statusseiten: In `uptimekuma-statuspage.yaml` steht, welcher Monitor in welcher Gruppe erscheint, und das Skript überträgt das per API. Es gibt zwei Dateien: `uptimekuma-statuspage.yaml` für die Seite `details` mit allen Monitoren und `uptimekuma-statuspage-default.yaml` für die Übersicht `default` in Glance, die nur die Gruppen-Monitore aus dem Dashboard zeigt. Getestet mit Uptime Kuma 2.5.5.
 
-Das Skript ändert nur die Gruppen und ihre Reihenfolge. Titel, Beschreibung, CSS, Logo und die Monitore selbst bleiben unverändert. **Monitore anlegen, ändern oder löschen geht weiter nur im GUI.** Die YAML-Datei legt fest, wo sie auf der Statusseite erscheinen.
+Das Skript ändert nur die Gruppen und ihre Reihenfolge. Titel, Beschreibung, CSS, Logo und die Monitore selbst bleiben unverändert. **Monitore anlegen, ändern oder löschen geht im GUI**, Ping- und HTTPS-Monitore für das Inventar legt `uptimekuma-sync.py` an (`uptimekuma-sync.md`). Die YAML-Datei legt fest, wo sie auf der Statusseite erscheinen.
 
 ## Einmalig einrichten (Mac)
 
@@ -76,6 +76,7 @@ groups:
 - Die Gruppen erscheinen in der Reihenfolge der Datei, die Monitore darin ebenso.
 - Die Namen müssen genau wie in Uptime Kuma geschrieben sein, inklusive Groß- und Kleinschreibung.
 - Ein Monitor darf nur in einer Gruppe stehen.
+- `- tag: inventar` statt eines Namens setzt alle Monitore mit diesem Tag ein, alphabetisch (die von `uptimekuma-sync.py`). Die Gruppe mit dem Tag gehört ans Ende, damit von Hand eingetragene Monitore Vorrang haben.
 - Eine Gruppe, die in der Datei fehlt, wird von der Statusseite gelöscht. Die Monitore darin bleiben in Uptime Kuma erhalten.
 - Ordner aus dem Dashboard (Monitor-Typ „Group“, z. B. „Tasks“) gehören nicht in `uptimekuma-statuspage.yaml`. Das Skript meldet sie dort auch nicht als fehlend.
 - Die Übersicht `default` enthält umgekehrt nur solche Gruppen-Monitore. Enthält eine Datei nur Gruppen-Monitore (oder noch gar keine), meldet die Vorschau fehlende Gruppen-Monitore statt einzelner Monitore.
