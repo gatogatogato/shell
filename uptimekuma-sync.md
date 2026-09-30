@@ -22,6 +22,17 @@ Benachrichtigungen, die in Uptime Kuma als „Standard“ markiert sind (Pushove
 
 Dieselbe venv wie für die Statusseite (`uptimekuma-statuspage.md`), ausführen auf dem Mac im Heimnetz.
 
+## Wann ausführen
+
+Das Skript läuft **nicht automatisch**, sondern von Hand auf dem Mac. Es braucht das Kuma-Passwort,
+das auf keinem Server liegen soll, und jede Änderung soll man vorher im Probelauf sehen. Starten:
+
+- nach einem neuen Host mit fester IP oder DHCP-Reservierung (neuer Container, neues Gerät),
+- nach einer neuen oder abgeschalteten Domain im Nginx Proxy Manager,
+- wenn im Inventar ein Gerät verschwunden ist (dann pausiert es dessen Monitor).
+
+Ein Anlass ist auch die Warnung „Neues Gerät“ im Inventar, sobald das Gerät Name und DNS hat.
+
 ## Ablauf
 
 ```sh
