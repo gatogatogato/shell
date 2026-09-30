@@ -11,6 +11,17 @@ http: true      # HTTPS fuer jede aktive NPM-Domain (401/403 der Access-Liste za
 interval: 60    # Sekunden
 retries: 1      # Fehlversuche bis "down"
 
-# DNS-Namen, IPs oder Domains, die keinen Monitor bekommen
+# DNS-Namen, IPs oder Domains, die keinen Monitor bekommen. Begruendung: uptimekuma-sync.md
 exclude:
-  # - debian-hercules.lan    # absichtlich meist aus
+  - debian-hercules.lan              # absichtlich meist aus
+  - uptimekuma.mythenstrasse56.net   # Kuma kann sich nicht selbst ueberwachen
+  - 192.168.1.78                     # NPM-Container: Ping-Name ist npm.mythenstrasse56.net, HTTPS bleibt
+  # Geraete, die schlafen oder ihr WLAN abschalten (Monitor waere dauernd rot/gruen)
+  - amazon-fire-hd.lan
+  - miele-w1.lan
+  - siemens-dishwasher.lan
+  - electrolux-ir.lan
+  - stehpult-office.lan
+  - dreame-vacuum-r9542b.lan
+  - dreame_vacuum_p2029.lan
+  - dreame_vacuum_r2250.lan
