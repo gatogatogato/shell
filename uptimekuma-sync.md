@@ -32,7 +32,29 @@ cd ~/Documents/Code/shell && git pull
 ```
 
 Der Probelauf nennt, wie viele Ziele es gibt, welche schon von Hand überwacht sind und was neu
-angelegt, wieder aktiviert oder pausiert würde. Gehört etwas nicht überwacht (z. B. debian-hercules,
-das meist aus ist), in `uptimekuma-sync.yaml` unter `exclude` eintragen.
+angelegt, wieder aktiviert oder pausiert würde. Gehört etwas nicht überwacht, in `uptimekuma-sync.yaml`
+unter `exclude` eintragen (siehe unten).
+
+## Ausnahmen
+
+`exclude` nimmt DNS-Namen, IPs oder NPM-Domains. Ein DNS-Name oder eine IP verhindert den Ping-Monitor
+eines Hosts, eine Domain den HTTPS-Monitor. Achtung: Ist der DNS-Name eines Hosts gleichzeitig eine
+NPM-Domain, fallen mit dem Namen beide weg; dann die IP eintragen, sie betrifft nur den Ping.
+Ist ein Monitor schon angelegt und kommt sein Ziel später in `exclude`, pausiert ihn der nächste Lauf.
+
+Stand 30.09.2026 (erster Probelauf: 72 Ziele, 8 davon schon von Hand überwacht):
+
+| Eintrag | Warum kein Monitor |
+|---|---|
+| `debian-hercules.lan` | Braucht viel CPU und ist deshalb absichtlich meist aus, wäre dauernd rot. |
+| `uptimekuma.mythenstrasse56.net` | Kuma kann sich nicht sinnvoll selbst überwachen: Fällt es aus, meldet es nichts mehr. |
+| `192.168.1.78` | NPM-Container. Sein erster DNS-Name ist `npm.mythenstrasse56.net`, der Ping-Monitor wäre doppelt zum HTTPS-Monitor. Per IP ausgeschlossen, damit HTTPS bleibt. |
+| `amazon-fire-hd.lan` | Tablet schläft, WLAN geht dann aus. |
+| `miele-w1.lan`, `siemens-dishwasher.lan`, `electrolux-ir.lan` | Haushaltsgeräte sind oft nur im WLAN, solange sie laufen. |
+| `stehpult-office.lan` | Steuerung ist nicht dauernd im WLAN. |
+| `dreame-vacuum-r9542b.lan`, `dreame_vacuum_p2029.lan`, `dreame_vacuum_r2250.lan` | Saugroboter schlafen in der Station. |
+
+Die Geräte aus den letzten vier Zeilen sind Vermutungen: Ist eines davon doch immer erreichbar,
+den Eintrag löschen, dann legt der nächste `--apply` den Monitor an.
 
 Zugang wie beim Statuspage-Skript über `KUMA_USER`/`KUMA_PASSWORD` oder Abfrage.
