@@ -14,7 +14,6 @@ readonly SERVERS=(
     debian-flickr
     debian-hercules
     debian-ansible
-    debian-changedetection
     debian-glance
     debian-cloudflared
     debian-npm
