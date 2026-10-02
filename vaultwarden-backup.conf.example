@@ -1,0 +1,9 @@
+# Konfig fuer vaultwarden-backup.sh
+# Liegt im Container als /etc/vaultwarden-backup.conf (root, chmod 600), nie im Repo.
+# Wird vom Skript per "." eingelesen, also Shell-Syntax.
+#
+# Push-URL des Monitors "Vaultwarden-Backup" in Uptime Kuma, leer = keine Meldung
+HC_URL="https://uptimekuma.example/api/push/TOKEN"
+
+# Optional: jede andere Variable aus dem Skript ueberschreiben, z. B.
+# KEEP_REMOTE=90
