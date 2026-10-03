@@ -35,10 +35,10 @@ Dafür gibt es unten einen Prüfbefehl.
 Nextcloud sieht als Absender nur cloudflared. Der Brute-Force-Schutz wirft dann alle Anmeldungen in einen Topf:
 Ein Angreifer bremst dich mit aus, und im Log steht keine brauchbare IP. Der Check hat `"bruteforce":{"delay":0}` gemeldet.
 
-Vorschlag (die IP vom cloudflared-Container eintragen, nur diese, nicht das ganze LAN):
+Vorschlag (die IPs der cloudflared-Container eintragen, nur diese, nicht das ganze LAN):
 
 ```php
-'trusted_proxies' => ['127.0.0.1', '192.168.1.75'],   // 192.168.1.75 = debian-cloudflared
+'trusted_proxies' => ['127.0.0.1', '192.168.1.75', '192.168.1.72'],   // debian-cloudflared1 und debian-cloudflared2
 'forwarded_for_headers' => ['HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR'],
 ```
 

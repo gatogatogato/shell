@@ -18,6 +18,8 @@ groups:
     - Unifi U6+ UG
     - Pihole DNS Primary
     - Pihole DNS Secondary
+    - Cloudflare Tunnel 1
+    - Cloudflare Tunnel 2
     - Lokale DNS-Namen
 
   Plattform:
