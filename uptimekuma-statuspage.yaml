@@ -33,7 +33,6 @@ groups:
 
   Dienste:
     - Glance
-    - Change Detection
     - Nginx Proxy Manager HTTPS
     - Home Assistant
     - NextCloud
