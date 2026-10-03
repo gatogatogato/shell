@@ -15,7 +15,8 @@ readonly SERVERS=(
     debian-hercules
     debian-ansible
     debian-glance
-    debian-cloudflared
+    debian-cloudflared1
+    debian-cloudflared2
     debian-npm
     debian-uptimekuma
     debian-pihole
