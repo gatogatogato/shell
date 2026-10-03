@@ -5,8 +5,8 @@ den Cloudflare Tunnel erreichbar (`nextcloud.mythenstrasse56.net`).
 
 **Stand nach dem 3. Oktober:** Erledigt sind echte Client-IP (`trusted_proxies`), http→https und HSTS bei Cloudflare,
 System-Cron, Federation aus, App-Passwort für den Flickr-Server, 2FA (TOTP) für `gato` sowie Passwort und
-30 Tage Ablauf für Freigabe-Links. Offen und optional: Wartungsbefehle (Punkt 7 der To-do-Liste), App-Neustart,
-TrueNAS-Kleinkram (Punkt 11).
+30 Tage Ablauf für Freigabe-Links. Offen und optional: Wartungsbefehle (Punkt 7 der To-do-Liste) und
+TrueNAS-Kleinkram (Punkt 11). `/cron.php` antwortet im Cron-Modus weiter mit „success“, führt aber keinen Job aus (Verhalten von Nextcloud 35).
 
 `occ` aufrufen (als root auf TrueNAS):
 
@@ -159,7 +159,7 @@ Statt `occ setupchecks` geht auch ein Screenshot von *Verwaltung → Übersicht 
 
 1. (erledigt 3.10.) Cron: `occ background:cron`.
 2. (erledigt 3.10.) Cloudflare: Always Use HTTPS und HSTS (max-age 15552000 gemessen).
-3. (erledigt 3.10., Flickr-Sync auf App-Passwort umgestellt) 2FA für `gato` einrichten (*Persönliche Einstellungen → Sicherheit → TOTP*), Backup-Codes in Vaultwarden ablegen, dann `occ twofactorauth:enforce --on`.
+3. (erledigt 3.10., Flickr-Sync auf App-Passwort umgestellt) 2FA für `gato` einrichten (*Persönliche Einstellungen → Sicherheit → TOTP*), Backup-Codes in Vaultwarden und auf dem Papier-Notfallblatt. Nicht global erzwungen (`twofactorauth:enforce`), bei einem Konto unnötig.
 4. (erledigt 3.10.) Freigaben: `occ config:app:set core shareapi_enforce_links_password --value=yes` und Ablaufdatum 30 Tage
    (`shareapi_default_expire_date yes`, `shareapi_expire_after_n_days 30`, `shareapi_enforce_expire_date yes`).
 5. (erledigt 3.10.) Federation aus, wenn nicht genutzt: `occ app:disable lookup_server_connector federation`, dazu
