@@ -170,3 +170,13 @@ Statt `occ setupchecks` geht auch ein Screenshot von *Verwaltung → Übersicht 
    nach Proxmox-Backup und Ansible-Updates), `occ config:system:set default_phone_region --value=CH`,
    `occ db:add-missing-indices`, `occ maintenance:repair --include-expensive` (dauert etwas, lieber abends).
 8. (geklärt 3.10.) DB-Prüfung: nur ein Hinweis, `oc_preferences` und `oc_appconfig` werden sequenziell gelesen. Das sind kleine Tabellen, Postgres liest sie absichtlich am Stück, kein Handlungsbedarf. Log-Fehler: alle vom 1.10. 06:44 UTC, Postgres war beim Start kurz nicht erreichbar, einmalig.
+
+## Backup (Stand 3. Oktober 2026)
+
+- Datasets: `tank01/nextcloud/userdata` (Dateien), `tank01/nextcloud/database` (Postgres), `tank01/nextcloud/appdata` (`config.php`).
+- Bis 3. Oktober wurden nur `userdata` per Snapshot und Cloud-Backup gesichert. Datenbank (Kalender, Kontakte, Freigaben, Versionen, 2FA, App-Passwörter) und `config.php` fehlten.
+- Seit 3. Oktober:
+  - zusätzlicher Snapshot-Task `tank01/nextcloud`, rekursiv, ohne `userdata`, stündlich
+  - TrueCloud-Backup „Nextcloud DB + config“ mit „Take Snapshot“, täglich 02:20 (nach „Nextcloud userdata“ um 02:10), 10 Stände; Repo-Passwort in Vaultwarden
+- Konsistenz: Postgres liegt samt WAL in einem Dataset, der Snapshot ist atomar, also crash-konsistent. Nach einem Restore einmal `occ files:scan --all`, weil Userdaten und Datenbank zu leicht verschiedenen Zeiten gesichert werden.
+- Prüfen, ob die Datenbank lesbar ist: `docker exec ix-nextcloud-postgres-1 sh -c 'pg_dumpall -U "$POSTGRES_USER" > /dev/null && echo "DB OK"'`
