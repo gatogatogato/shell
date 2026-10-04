@@ -2,11 +2,9 @@
 # Liegt auf dem Mac als ~/.config/usb-backup.conf (chmod 600), nie im Repo.
 # Wird vom Skript per "." eingelesen, also Shell-Syntax.
 #
-# Push-URL des Monitors "USB-Notfallkopie" in Uptime Kuma, leer = keine Meldung
-KUMA_URL="https://uptimekuma.example/api/push/TOKEN"
-
-# Optional: jede andere Variable aus dem Skript ueberschreiben, z. B.
+# Nur noetig, wenn etwas vom Skript abweichen soll. Jede Variable laesst sich ueberschreiben, z. B.
 # TRUENAS="root@truenas.lan"
 # HA_DIR="/mnt/tank01/ha-backups"
 # NEXTCLOUD_DIR="$HOME/Nextcloud"
 # KEEP=3
+# KUMA_URL="https://uptimekuma.example/api/push/TOKEN"   # optional, Push nach jedem Lauf

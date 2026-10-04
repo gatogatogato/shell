@@ -64,19 +64,18 @@ ssh root@truenas.lan 'ls /mnt/tank01/ha-backups | tail -3'
 
 Liegen die Home-Assistant-Backups woanders, den Pfad als `HA_DIR` in der Konfig eintragen.
 
-**3. Skript und Konfig auf dem Mac.** Im Terminal auf dem Mac:
+**3. Skript auf dem Mac aktualisieren.** Im Terminal auf dem Mac:
 
 ```
 cd ~/Documents/Code/shell && git pull
-mkdir -p ~/.config
-cp usb-backup.conf.example ~/.config/usb-backup.conf
-chmod 600 ~/.config/usb-backup.conf
 ```
 
-**4. Erinnerung über Uptime Kuma.** In Uptime Kuma einen Push-Monitor „USB-Notfallkopie“
-anlegen, Heartbeat-Intervall 8640000 Sekunden (100 Tage), Wiederholungen 0. Die Push-URL
-als `KUMA_URL` in `~/.config/usb-backup.conf` eintragen. Läuft das Skript länger als 100
-Tage nicht, wird der Monitor rot und erinnert dich.
+Eine Konfig ist nicht nötig. Nur wenn ein Pfad oder eine Einstellung abweichen soll:
+`cp usb-backup.conf.example ~/.config/usb-backup.conf`, `chmod 600 ~/.config/usb-backup.conf`
+und dort die Variable setzen.
+
+**4. Erinnerung.** In der Erinnerungen-App eine Erinnerung „USB-Notfallkopie erneuern
+(Anleitung: shell/usb-backup.md)“ anlegen, Wiederholen „Alle 3 Monate“.
 
 ## Ablauf (alle 3 Monate)
 
