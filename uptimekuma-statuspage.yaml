@@ -25,7 +25,7 @@ groups:
   Plattform:
     - Proxmox Node 01 HTTPS
     - Proxmox Node 02 HTTPS
-    - Proxmox Node 03 HTTPS
+    - Proxmox QDevice
     - TrueNas
     - Pihole Ping Primary
     - Pihole Ping Secondary
