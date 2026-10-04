@@ -143,7 +143,7 @@ export_file="$(ls -1t "$EXPORT_DIR"/bitwarden_encrypted_export_*.json 2>/dev/nul
 if [ -z "$export_file" ]; then
     warn "kein verschlüsselter Export in $EXPORT_DIR (Web-Tresor: Werkzeuge > Tresor exportieren, .json (Encrypted), Passwortgeschützt)"
 elif ! grep -q '"passwordProtected": *true' "$export_file"; then
-    warn "$(basename "$export_file") ist nicht passwortgeschützt, nicht kopiert"
+    warn "$(basename "$export_file") ist nur mit dem Konto verschlüsselt (Exporttyp \"Kontobeschränkt\"), ohne Vaultwarden nicht lesbar. Neu exportieren mit Exporttyp \"Passwortgeschützt\". Nicht kopiert."
 else
     age=$(( ( $(date +%s) - $(stat -f %m "$export_file") ) / 86400 ))
     mkdir -p "$RUN/vaultwarden"
@@ -208,8 +208,8 @@ section "GitHub-Repos"
 mkdir -p "$RUN/git"
 done_repos=""
 for r in $REPOS; do
-    if git clone -q --mirror "$GIT_URL/$r.git" "$RUN/git/$r.git" 2>/dev/null; then done_repos="$done_repos $r"
-    else warn "git clone $r fehlgeschlagen"; fi
+    if err="$(git clone -q --mirror "$GIT_URL/$r.git" "$RUN/git/$r.git" 2>&1)"; then done_repos="$done_repos $r"
+    else warn "git clone $r fehlgeschlagen: $(printf '%s' "$err" | grep -v '^$' | tail -1)"; fi
 done
 [ -z "$done_repos" ] || ok "$(echo $done_repos | wc -w | tr -d ' ') Repos:$done_repos"
 
