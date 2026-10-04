@@ -9,7 +9,7 @@ Die Disk ist nur während des Laufs angesteckt und liegt sonst ausser Haus.
 
 ## Was drauf landet
 
-Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Uhrzeit>/` mit:
+Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 
 | Ordner | Inhalt | Quelle |
 |---|---|---|
@@ -99,7 +99,7 @@ und dort die Variable setzen.
 Erst prüfen, ob die Dateien heil sind (Terminal auf einem Mac, Disk entsperrt):
 
 ```
-cd /Volumes/LastResort/homelab-backup/<Datum_Uhrzeit> && shasum -a 256 -c SHA256SUMS | grep -v ': OK$'
+cd /Volumes/LastResort/homelab-backup/<Datum_Zeit> && shasum -a 256 -c SHA256SUMS | grep -v ': OK$'
 ```
 
 Keine Ausgabe heisst: alles in Ordnung.
@@ -117,4 +117,4 @@ Keine Ausgabe heisst: alles in Ordnung.
 - **Home Assistant:** beim Onboarding einer neuen Installation „Aus Backup wiederherstellen“
   → `homeassistant/*.tar`.
 - **Nextcloud:** die Dateien liegen offen in `nextcloud/`.
-- **Repos:** `git clone /Volumes/LastResort/homelab-backup/<Datum_Uhrzeit>/git/ansible.git`.
+- **Repos:** `git clone /Volumes/LastResort/homelab-backup/<Datum_Zeit>/git/ansible.git`.

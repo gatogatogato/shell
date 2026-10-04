@@ -42,19 +42,49 @@ KUMA_URL=""                                      # Uptime-Kuma-Push-URL, leer = 
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 BASE="$DISK/homelab-backup"
-STAMP="$(date +%Y-%m-%d_%H%M)"
+STAMP="$(date +%Y-%m-%d_%H%M%S)"
 RUN="$BASE/$STAMP.partial"
 SSH="ssh -o BatchMode=yes -o ControlMaster=auto -o ControlPath=$HOME/.ssh/usb-backup-%C -o ControlPersist=300"
 WARN=""
+STEPS=8
+T0=$(date +%s)
 
-say()  { printf '\n== %s\n' "$*"; }
-warn() { echo "WARNUNG: $*" >&2; WARN="${WARN}- $*"$'\n'; }
-die()  { echo "FEHLER: $*" >&2; exit 1; }
-ts()   { $SSH "$TRUENAS" "$@"; }
+# --- Ausgabe ----------------------------------------------------------------------------
+# Gleicher Look wie basetagger und flickr-uploader. Farben nur im Terminal, NO_COLOR schaltet ab.
+WIDTH=78
+if [ -t 1 ] && [ -z "${NO_COLOR+x}" ]; then COLOR=1; PROGRESS="--progress"; else COLOR=0; PROGRESS=""; fi
+
+paint() {          # <text> <ansi-codes...>
+    local text="$1"; shift
+    if [ "$COLOR" = 1 ]; then local IFS=';'; printf '\033[%sm%s\033[0m' "$*" "$text"; else printf '%s' "$text"; fi
+}
+line()  { local n=$1 c=$2 out=""; while [ "$n" -gt 0 ]; do out="$out$c"; n=$((n - 1)); done; printf '%s' "$out"; }
+box() {            # <text> <ansi-codes...>
+    local text=" $1" w=$((WIDTH - 2)); shift
+    [ ${#text} -lt "$w" ] || w=$((${#text} + 2))
+    echo
+    paint "+$(line "$w" =)+" 36; echo
+    paint "|" 36; paint "$(printf "%-${w}s" "$text")" 1 "$@"; paint "|" 36; echo
+    paint "+$(line "$w" =)+" 36; echo
+}
+STEP=0
+section() {
+    STEP=$((STEP + 1))
+    local label="--[ $STEP/$STEPS ]-- $1 "
+    echo
+    paint "$label$(line $((WIDTH - ${#label})) -)" 1 36; echo
+}
+info()  { echo "  $(paint '>' 36) $*"; }
+ok()    { echo "  $(paint '[OK]' 1 32) $*"; }
+warn()  { echo "  $(paint '[!!]' 1 33) $*"; WARN="${WARN}- $*"$'\n'; }
+die()   { echo "  $(paint '[XX]' 1 31) $(paint "$*" 31)"; echo; exit 1; }
+field() { echo "  $(paint "$(printf '%s' "$1" | sed -e :a -e 's/^.\{1,11\}$/&./;ta')" 2) $2"; }
+size()  { du -sh "$1" 2>/dev/null | cut -f1 | tr -d ' '; }
+ts()    { $SSH "$TRUENAS" "$@"; }
 
 # Neueste Datei zu einem Muster auf TrueNAS: "<alter in tagen> <pfad>", leer wenn keine
 newest_remote() {
-    ts "f=\$(ls -1t $1/$2 2>/dev/null | head -1); [ -n \"\$f\" ] && echo \$(( (\$(date +%s) - \$(stat -c %Y \"\$f\")) / 86400 )) \"\$f\"" || true
+    ts "f=\$(ls -1t $1/$2 2>/dev/null | head -1); [ -n \"\$f\" ] && echo \$(( (\$(date +%s) - \$(stat -c %Y \"\$f\")) / 86400 )) \"\$f\"" 2>/dev/null || true
 }
 
 fetch_newest() {    # <name> <ordner> <muster> <max tage> <ziel>
@@ -62,116 +92,140 @@ fetch_newest() {    # <name> <ordner> <muster> <max tage> <ziel>
     line="$(newest_remote "$2" "$3")"
     [ -n "$line" ] || { warn "$1: keine Datei $2/$3 auf TrueNAS"; return; }
     age="${line%% *}"; file="${line#* }"
-    [ "$age" -le "$4" ] || warn "$1: neueste Datei ist $age Tage alt ($file)"
+    info "$1: $(basename "$file")"
     mkdir -p "$5"
-    rsync -a -e "$SSH" "$TRUENAS:$file" "$5/"
-    echo "$1: $(basename "$file") ($age Tage alt)"
+    rsync -a $PROGRESS -e "$SSH" "$TRUENAS:$file" "$5/"
+    if [ "$age" -le "$4" ]; then ok "$1: $(size "$5/$(basename "$file")"), $age Tage alt"
+    else warn "$1: neueste Datei ist $age Tage alt ($(basename "$file"))"; fi
 }
 
 finish() {
     rc=$?
     $SSH -O exit "$TRUENAS" 2>/dev/null || true
     if [ $rc -ne 0 ] && [ -d "$RUN" ]; then
-        echo "Abgebrochen. Unvollstaendiger Lauf bleibt in $RUN (wird beim naechsten Lauf geloescht)." >&2
+        box "Abgebrochen. Unvollständiger Lauf bleibt in $(basename "$RUN")" 31
+        info "Er wird beim nächsten Lauf gelöscht."
         [ -n "$KUMA_URL" ] && curl -fsS -m 10 -o /dev/null "${KUMA_URL%%\?*}?status=down&msg=Abbruch" || true
+        echo
     fi
     exit $rc
 }
 trap finish EXIT
 
+box "USB-Notfallkopie $(date '+%d.%m.%Y %H:%M')" 37
+
 # --- 0. Disk pruefen --------------------------------------------------------------------
+section "Disk"
 [ -d "$DISK" ] || die "$DISK nicht gefunden. Disk angesteckt und entsperrt?"
 diskutil info "$DISK" | grep -Eq 'FileVault: +Yes' \
-    || die "$DISK ist nicht verschluesselt (diskutil info: FileVault nicht Yes). Siehe usb-backup.md."
+    || die "$DISK ist nicht verschlüsselt (diskutil info: FileVault nicht Yes). Siehe usb-backup.md."
 free_gb=$(( $(df -k "$DISK" | awk 'NR==2 {print $4}') / 1024 / 1024 ))
-[ "$free_gb" -ge "$MIN_FREE_GB" ] || die "Nur $free_gb GB frei auf $DISK, mindestens $MIN_FREE_GB GB noetig."
+[ "$free_gb" -ge "$MIN_FREE_GB" ] || die "Nur $free_gb GB frei auf $DISK, mindestens $MIN_FREE_GB GB nötig."
 
 mkdir -p "$BASE"
 rm -rf "$BASE"/*.partial                         # Reste abgebrochener Laeufe
 PREV="$(ls -1d "$BASE"/20*/ 2>/dev/null | sort | tail -1 || true)"
 umask 077
 mkdir -p "$RUN"
-ts true || die "Kein SSH-Login als $TRUENAS (Schluessel hinterlegt? Siehe usb-backup.md)."
+ts true || die "Kein SSH-Login als $TRUENAS (Schlüssel hinterlegt? Siehe usb-backup.md)."
+field "Disk" "$DISK, verschlüsselt, $free_gb GB frei"
+field "TrueNAS" "$TRUENAS"
+field "Ziel" "homelab-backup/$STAMP"
+[ -n "$PREV" ] && field "Letzter Lauf" "$(basename "$PREV")"
+ok "Disk bereit"
 
 # --- 1. Bitwarden-Export ----------------------------------------------------------------
-say "Bitwarden-Export"
+section "Bitwarden-Export"
 for f in "$EXPORT_DIR"/bitwarden_export_*.json "$EXPORT_DIR"/bitwarden_export_*.csv; do
-    [ -e "$f" ] && warn "unverschluesselter Export $f gefunden, bitte loeschen (wird nicht kopiert)"
+    [ -e "$f" ] && warn "unverschlüsselter Export $(basename "$f") in $EXPORT_DIR, bitte löschen (wird nicht kopiert)"
 done
 export_file="$(ls -1t "$EXPORT_DIR"/bitwarden_encrypted_export_*.json 2>/dev/null | head -1 || true)"
 if [ -z "$export_file" ]; then
-    warn "kein verschluesselter Export in $EXPORT_DIR (Web-Tresor: Werkzeuge > Tresor exportieren, .json (Encrypted), Passwortgeschuetzt)"
+    warn "kein verschlüsselter Export in $EXPORT_DIR (Web-Tresor: Werkzeuge > Tresor exportieren, .json (Encrypted), Passwortgeschützt)"
 elif ! grep -q '"passwordProtected": *true' "$export_file"; then
-    warn "$export_file ist nicht passwortgeschuetzt, nicht kopiert"
+    warn "$(basename "$export_file") ist nicht passwortgeschützt, nicht kopiert"
 else
     age=$(( ( $(date +%s) - $(stat -f %m "$export_file") ) / 86400 ))
-    [ "$age" -le "$EXPORT_MAX_DAYS" ] || warn "Bitwarden-Export ist $age Tage alt, bitte neu exportieren"
     mkdir -p "$RUN/vaultwarden"
     cp -p "$export_file" "$RUN/vaultwarden/"
-    echo "$(basename "$export_file") ($age Tage alt)"
+    if [ "$age" -le "$EXPORT_MAX_DAYS" ]; then ok "$(basename "$export_file"), $age Tage alt"
+    else warn "Bitwarden-Export ist $age Tage alt, bitte neu exportieren"; fi
 fi
 
 # --- 2. TrueNAS-Config ------------------------------------------------------------------
-say "TrueNAS-Config"
+section "TrueNAS-Config"
 mkdir -p "$RUN/truenas"
 ts 'set -e; t=$(mktemp -d); trap "rm -rf $t" EXIT
     if command -v sqlite3 >/dev/null; then sqlite3 /data/freenas-v1.db ".backup $t/freenas-v1.db"
     else cp /data/freenas-v1.db "$t/"; fi
     cp /data/pwenc_secret "$t/"
     tar -C "$t" -cf - freenas-v1.db pwenc_secret' > "$RUN/truenas/truenas-config-$STAMP.tar"
-tar -tf "$RUN/truenas/truenas-config-$STAMP.tar" | grep -q pwenc_secret || die "TrueNAS-Config unvollstaendig."
-echo "truenas-config-$STAMP.tar"
+tar -tf "$RUN/truenas/truenas-config-$STAMP.tar" | grep -q pwenc_secret || die "TrueNAS-Config unvollständig."
+ok "truenas-config-$STAMP.tar mit pwenc_secret"
 
 # --- 3. Vaultwarden- und Home-Assistant-Backup ------------------------------------------
-say "Vaultwarden- und Home-Assistant-Backup"
+section "Vaultwarden und Home Assistant"
 fetch_newest "Vaultwarden" "$VW_DIR" 'vaultwarden-backup-*.tar.gz' "$VW_MAX_DAYS" "$RUN/vaultwarden"
 fetch_newest "Home Assistant" "$HA_DIR" 'automatic_backup_*.tar' "$HA_MAX_DAYS" "$RUN/homeassistant"
 
 # --- 4. vzdump: neuestes Archiv je Gast (mit .log und .notes) ----------------------------
-say "Proxmox vzdump"
+section "Proxmox vzdump"
 mkdir -p "$RUN/proxmox-vzdump"
 dump_files="$(ts "cd '$DUMP_DIR' && find . -maxdepth 1 -type f -name 'vzdump-*' ! -name '*.log' ! -name '*.notes' -mtime -$DUMP_MAX_DAYS -printf '%T@ %f\n' \
     | sort -rn | awk '{ split(\$2, a, \"-\"); if (!(a[3] in seen)) { seen[a[3]] = 1; p = \$2; sub(/\\.(tar|vma)(\\.(zst|gz|lzo))?\$/, \"\", p); print p } }' \
     | while read -r p; do ls -1 \"\$p\".*; done")"
-[ -n "$dump_files" ] || warn "keine vzdump-Archive juenger als $DUMP_MAX_DAYS Tage in $DUMP_DIR"
-for f in $dump_files; do
-    rsync -a -e "$SSH" "$TRUENAS:$DUMP_DIR/$f" "$RUN/proxmox-vzdump/"
-done
-echo "$(echo "$dump_files" | grep -cE '\.(zst|gz|lzo)$' || true) Gaeste, $(du -sh "$RUN/proxmox-vzdump" | cut -f1)"
+if [ -z "$dump_files" ]; then
+    warn "keine vzdump-Archive jünger als $DUMP_MAX_DAYS Tage in $DUMP_DIR"
+else
+    guests=$(echo "$dump_files" | grep -cE '\.(zst|gz|lzo)$' || true)
+    n=0
+    for f in $dump_files; do
+        case "$f" in
+            *.zst|*.gz|*.lzo) n=$((n + 1)); info "[$n/$guests] $f"
+                              rsync -a $PROGRESS -e "$SSH" "$TRUENAS:$DUMP_DIR/$f" "$RUN/proxmox-vzdump/" ;;
+            *)                rsync -a -e "$SSH" "$TRUENAS:$DUMP_DIR/$f" "$RUN/proxmox-vzdump/" ;;
+        esac
+    done
+    ok "$guests Gäste, $(size "$RUN/proxmox-vzdump")"
+fi
 
 # --- 5. Nextcloud -----------------------------------------------------------------------
-say "Nextcloud"
+section "Nextcloud"
 if [ -d "$NEXTCLOUD_DIR" ]; then
     link=""
     [ -n "$PREV" ] && [ -d "${PREV}nextcloud" ] && link="--link-dest=${PREV}nextcloud"
+    info "$NEXTCLOUD_DIR${link:+ (unveränderte Dateien als Hardlink zum letzten Lauf)}"
     rsync -a $link --exclude '.DS_Store' --exclude '.sync_*.db*' --exclude '._sync_*.db*' \
         --exclude '.owncloudsync.log*' --exclude '.nextcloudsync.log*' \
         "$NEXTCLOUD_DIR/" "$RUN/nextcloud/"
-    echo "$(du -sh "$RUN/nextcloud" | cut -f1)"
+    ok "$(find "$RUN/nextcloud" -type f | wc -l | tr -d ' ') Dateien, $(size "$RUN/nextcloud")"
 else
     warn "Nextcloud-Ordner $NEXTCLOUD_DIR nicht gefunden"
 fi
 
 # --- 6. GitHub-Repos --------------------------------------------------------------------
-say "GitHub-Repos"
+section "GitHub-Repos"
 mkdir -p "$RUN/git"
+done_repos=""
 for r in $REPOS; do
-    git clone -q --mirror "$GIT_URL/$r.git" "$RUN/git/$r.git" 2>/dev/null && echo "$r" \
-        || warn "git clone $r fehlgeschlagen"
+    if git clone -q --mirror "$GIT_URL/$r.git" "$RUN/git/$r.git" 2>/dev/null; then done_repos="$done_repos $r"
+    else warn "git clone $r fehlgeschlagen"; fi
 done
+[ -z "$done_repos" ] || ok "$(echo $done_repos | wc -w | tr -d ' ') Repos:$done_repos"
 
 # --- 7. Pruefsummen, Anleitung, abschliessen --------------------------------------------
-say "Pruefsummen"
+section "Abschluss"
 [ -f "$HERE/usb-backup.md" ] && cp "$HERE/usb-backup.md" "$RUN/LIESMICH.md"
+info "SHA256SUMS berechnen"
 (cd "$RUN" && find . -type f ! -name SHA256SUMS -print0 | xargs -0 shasum -a 256 > SHA256SUMS)
 [ -n "$WARN" ] && printf '%s' "$WARN" > "$RUN/WARNUNGEN.txt"
 mv "$RUN" "$BASE/$STAMP"
 RUN="$BASE/$STAMP"
-echo "$(wc -l < "$RUN/SHA256SUMS" | tr -d ' ') Dateien, $(du -sh "$RUN" | cut -f1)"
+ok "$(wc -l < "$RUN/SHA256SUMS" | tr -d ' ') Dateien, $(size "$RUN")"
 
 ls -1d "$BASE"/20*/ | sort -r | tail -n +$((KEEP + 1)) | while read -r old; do
-    echo "loesche alten Lauf $old"
     rm -rf "$old"
+    ok "alten Lauf $(basename "$old") gelöscht"
 done
 
 if [ -n "$KUMA_URL" ]; then
@@ -180,6 +234,17 @@ if [ -n "$KUMA_URL" ]; then
         || warn "Push an Uptime Kuma fehlgeschlagen"
 fi
 
-say "Fertig: $RUN"
-[ -z "$WARN" ] || printf '\nWarnungen:\n%s' "$WARN"
-echo "Disk auswerfen: diskutil eject $DISK"
+secs=$(( $(date +%s) - T0 ))
+if [ -z "$WARN" ]; then
+    box "Fertig ohne Warnungen" 32
+else
+    box "Fertig mit $(printf '%s' "$WARN" | grep -c .) Warnungen" 33
+    printf '%s' "$WARN" | while IFS= read -r w; do echo "  $(paint '[!!]' 1 33) ${w#- }"; done
+fi
+field "Ordner" "$RUN"
+field "Belegt" "$(size "$RUN"), $(( $(df -k "$DISK" | awk 'NR==2 {print $4}') / 1024 / 1024 )) GB frei"
+field "Dauer" "$((secs / 60)) Min. $((secs % 60)) Sek."
+field "Kopien" "$(ls -1d "$BASE"/20*/ | wc -l | tr -d ' ') von $KEEP"
+echo
+info "Disk auswerfen: $(paint "diskutil eject $DISK" 1)"
+echo
