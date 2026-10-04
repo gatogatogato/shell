@@ -15,7 +15,7 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Uhrzeit>/` mit:
 |---|---|---|
 | `vaultwarden/` | verschlüsselter Bitwarden-Export und neuestes Vaultwarden-Backup (tar) | `~/Downloads`, TrueNAS |
 | `truenas/` | TrueNAS-Config mit `pwenc_secret` (wie „Download Configuration“ mit Secret Seed) | TrueNAS `/data` |
-| `homeassistant/` | neuestes automatische Voll-Backup von Home Assistant (`automatic_backup_*.tar`, ca. 7 GB) | TrueNAS |
+| `homeassistant/` | neuestes automatisches Voll-Backup von Home Assistant (`automatic_backup_*.tar`, ca. 7 GB) | TrueNAS |
 | `proxmox-vzdump/` | neuestes vzdump-Archiv jedes Gasts mit `.log` und `.notes` | TrueNAS |
 | `nextcloud/` | der lokale Nextcloud-Ordner (inkl. „Config Backups“) | Mac |
 | `git/` | Mirror-Klone aller GitHub-Repos | GitHub |
