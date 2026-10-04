@@ -25,7 +25,7 @@ TRUENAS="root@truenas.lan"
 VW_DIR="/mnt/tank01/vaultwarden-backups/vaultwarden"
 VW_MAX_DAYS=2
 HA_DIR="/mnt/tank01/ha-backups"
-HA_MAX_DAYS=4                                    # HA sichert Mo/Mi/Fr
+HA_MAX_DAYS=4                                    # HA sichert Mo/Mi/Fr, nur automatic_backup_* sind Voll-Backups
 DUMP_DIR="/mnt/tank01/proxmox-raw-backups/dump"
 DUMP_MAX_DAYS=10                                 # aeltere Archive gehoeren zu entfernten Gaesten
 NEXTCLOUD_DIR="$HOME/Nextcloud"
@@ -125,7 +125,7 @@ echo "truenas-config-$STAMP.tar"
 # --- 3. Vaultwarden- und Home-Assistant-Backup ------------------------------------------
 say "Vaultwarden- und Home-Assistant-Backup"
 fetch_newest "Vaultwarden" "$VW_DIR" 'vaultwarden-backup-*.tar.gz' "$VW_MAX_DAYS" "$RUN/vaultwarden"
-fetch_newest "Home Assistant" "$HA_DIR" '*.tar' "$HA_MAX_DAYS" "$RUN/homeassistant"
+fetch_newest "Home Assistant" "$HA_DIR" 'automatic_backup_*.tar' "$HA_MAX_DAYS" "$RUN/homeassistant"
 
 # --- 4. vzdump: neuestes Archiv je Gast (mit .log und .notes) ----------------------------
 say "Proxmox vzdump"
