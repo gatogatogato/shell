@@ -25,6 +25,8 @@ HOME_TAG="node02"                                # Gaeste mit diesem Tag gehoere
 PIN_TAG="nomigrate"                              # bleiben auf ihrem Node und starten mit ihm neu
 SSH_USER="root"
 CT_TIMEOUT=180                                   # Sekunden, die ein Container zum Herunterfahren hat
+PARALLEL=4                                       # so viele Migrationen gleichzeitig (wie im GUI)
+STATE_TIMEOUT=120                                # so lange darf ein Gast nach der Migration zum Starten brauchen
 BOOT_TIMEOUT=900                                 # so lange darf ein Neustart dauern
 SETTLE=30                                        # Pause, wenn ein Node wieder da ist
 
@@ -158,29 +160,62 @@ migrate_cmd() {    # <vmid> <typ> <status> <ziel-node>
     esac
 }
 
-# Migriert die Gaeste aus der Liste nacheinander. Jeder Befehl laeuft auf dem Quell-Node und
-# kommt erst zurueck, wenn die Migration fertig ist. Danach wird nachgeprueft.
+# Wartet, bis ein Gast laut Cluster auf dem Ziel-Node ist und den erwarteten Status hat. Der
+# Status kommt mit ein paar Sekunden Verzoegerung (pvestatd), ein Container ist nach der
+# Migration zuerst kurz "stopped".
+wait_state() {     # <host> <vmid> <ziel-node> <status>: gibt den letzten Stand aus, 1 bei Timeout
+    local deadline=$(($(date +%s) + STATE_TIMEOUT)) now
+    while :; do
+        now="$(guests "$1" | awk -v id="$2" '$1 == id { print $3, $4 }')"
+        [ "$now" = "$3 $4" ] && return 0
+        [ "$(date +%s)" -lt "$deadline" ] || { echo "$now"; return 1; }
+        sleep 3
+    done
+}
+
+# Migriert die Gaeste aus der Liste, je $PARALLEL gleichzeitig (wie im GUI). Jeder Befehl laeuft
+# auf dem Quell-Node und kommt erst zurueck, wenn die Migration fertig ist. Nach jeder Runde wird
+# nachgeprueft; geht etwas schief, bricht es ab, ohne einen Node neu zu starten.
 migrate_list() {   # <quell-host> <ziel-node> <liste aus guests()>
-    local src="$1" target="$2" list="$3" id type node status tags ha lock name cmd t0 out now
+    local src="$1" target="$2" list="$3" tmp batch="" n=0 id type node status tags ha lock name
     [ -n "$list" ] || { info "nichts zu migrieren"; return; }
+    tmp="$(mktemp -d)"
     while read -r id type node status tags ha lock name; do
-        cmd="$(migrate_cmd "$id" "$type" "$status" "$target")"
         info "$id $name ($type, $status) -> $target"
-        t0=$(date +%s)
-        out="$(mktemp)"
-        if ! pve "$src" "$cmd" > "$out" 2>&1; then
-            tail -n 15 "$out" | sed 's/^/      /'
-            rm -f "$out"
-            die "Migration von $id $name fehlgeschlagen. Abbruch, es wird kein Node neu gestartet."
-        fi
-        rm -f "$out"
-        now="$(guests "$src" | awk -v id="$id" '$1 == id { print $3, $4 }')"
-        [ "$now" = "$target $status" ] \
-            || die "$id $name ist nach der Migration '$now' statt '$target $status'. Abbruch."
-        ok "$id $name auf $target, $status ($(mmss $(($(date +%s) - t0))))"
+        ( rc=0
+          pve "$src" "$(migrate_cmd "$id" "$type" "$status" "$target")" > "$tmp/$id.out" 2>&1 || rc=$?
+          echo "$rc" > "$tmp/$id.rc" ) &
+        batch="$batch$id $status $name"$'\n'
+        n=$((n + 1))
+        if [ "$n" -ge "$PARALLEL" ]; then migrate_wait "$src" "$target" "$tmp" "$batch"; batch=""; n=0; fi
     done << EOF
 $list
 EOF
+    [ -z "$batch" ] || migrate_wait "$src" "$target" "$tmp" "$batch"
+    rm -rf "$tmp"
+}
+
+migrate_wait() {   # <quell-host> <ziel-node> <tmp-dir> <"vmid status name" pro zeile>
+    local src="$1" target="$2" tmp="$3" t0 failed="" id status name now
+    t0=$(date +%s)
+    wait
+    while read -r id status name; do
+        [ -n "$id" ] || continue
+        if [ "$(cat "$tmp/$id.rc")" != 0 ]; then
+            warn "Migration von $id $name fehlgeschlagen:"
+            tail -n 15 "$tmp/$id.out" | sed 's/^/      /'
+            failed="$failed $id"
+        elif now="$(wait_state "$src" "$id" "$target" "$status")"; then
+            ok "$id $name auf $target, $status"
+        else
+            warn "$id $name ist nach $STATE_TIMEOUT s '$now' statt '$target $status'"
+            failed="$failed $id"
+        fi
+    done << EOF
+$4
+EOF
+    [ -z "$failed" ] || { rm -rf "$tmp"; die "Problem mit$failed. Abbruch, es wird kein Node neu gestartet."; }
+    info "Runde fertig ($(mmss $(($(date +%s) - t0))))"
 }
 
 # Startet einen Node neu, auf dem nur noch Gaeste mit Tag $PIN_TAG sind, und wartet, bis er
