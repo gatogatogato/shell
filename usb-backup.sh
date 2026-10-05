@@ -216,6 +216,7 @@ done
 # --- 7. Pruefsummen, Anleitung, abschliessen --------------------------------------------
 section "Abschluss"
 [ -f "$HERE/usb-backup.md" ] && cp "$HERE/usb-backup.md" "$RUN/LIESMICH.md"
+[ -f "$HERE/nextcloud-2fa.md" ] && cp "$HERE/nextcloud-2fa.md" "$RUN/NEXTCLOUD-2FA.md"
 info "SHA256SUMS berechnen"
 (cd "$RUN" && find . -type f ! -name SHA256SUMS -print0 | xargs -0 shasum -a 256 > SHA256SUMS)
 [ -n "$WARN" ] && printf '%s' "$WARN" > "$RUN/WARNUNGEN.txt"
