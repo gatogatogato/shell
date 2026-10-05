@@ -19,7 +19,8 @@ readonly SERVERS=(
     debian-cloudflared2
     debian-npm
     debian-uptimekuma
-    debian-pihole
+    debian-pihole1
+    debian-pihole2
     debian-camsnaps
 )
 
