@@ -8,6 +8,8 @@
 #
 # Gaeste mit Tag nomigrate (doppelt vorhandene wie Pi-hole und cloudflared) werden nie migriert,
 # sondern mit ihrem Node heruntergefahren und per "Beim Booten starten" wieder gestartet.
+# Gaeste mit Tag stopfirst (Uptime Kuma, damit es keine Fehlalarme gibt) stoppt das Skript
+# am Anfang und startet sie ganz am Schluss wieder.
 # Laeuft auf dem Mac (oder auf proxmox-n03) und steuert die Nodes per ssh als root. Auf n01
 # oder n02 selbst geht es nicht, weil das Skript den eigenen Node neu starten muesste.
 # proxmox-n03 bekommt nie einen Gast und wird nicht neu gestartet.
@@ -23,6 +25,7 @@ NODE_A_HOST="proxmox-n01.lan"                    # wird zuerst neu gestartet
 NODE_B_HOST="proxmox-n02.lan"
 HOME_TAG="node02"                                # Gaeste mit diesem Tag gehoeren auf NODE_B
 PIN_TAG="nomigrate"                              # bleiben auf ihrem Node und starten mit ihm neu
+STOP_TAG="stopfirst"                             # am Anfang stoppen, ganz am Schluss wieder starten
 SSH_USER="root"
 CT_TIMEOUT=180                                   # Sekunden, die ein Container zum Herunterfahren hat
 PARALLEL=4                                       # so viele Migrationen gleichzeitig (wie im GUI)
@@ -81,7 +84,7 @@ box() {            # <text> <ansi-codes...>
     paint "+$(line "$w" =)+" 36; echo
 }
 STEP=0
-STEPS=8
+STEPS=10
 [ "$DRY" = 1 ] && STEPS=2
 section() {
     STEP=$((STEP + 1))
@@ -92,7 +95,12 @@ section() {
 info()  { echo "  $(paint '>' 36) $*"; }
 ok()    { echo "  $(paint '[OK]' 1 32) $*"; }
 warn()  { echo "  $(paint '[!!]' 1 33) $*"; }
-die()   { echo "  $(paint '[XX]' 1 31) $(paint "$*" 31)"; echo; exit 1; }
+STOPPED=""         # vom Skript gestoppte Gaeste, am Schluss wieder starten
+die()   {
+    echo "  $(paint '[XX]' 1 31) $(paint "$*" 31)"
+    [ -z "$STOPPED" ] || echo "  $(paint '[!!]' 1 33) Vom Skript gestoppt und noch nicht wieder gestartet:$STOPPED"
+    echo; exit 1
+}
 mmss()  { printf '%d:%02d' $(($1 / 60)) $(($1 % 60)); }
 
 # --- Proxmox ----------------------------------------------------------------------------
@@ -146,6 +154,25 @@ onboot() {         # <host> <node> <typ> <vmid>
 # Filter fuer Zeilen aus guests(): ohne bzw. nur die Gaeste mit Tag $PIN_TAG
 unpinned() { awk -v t="$PIN_TAG" 'index(";" $5 ";", ";" t ";") == 0'; }
 pinned()   { awk -v t="$PIN_TAG" 'index(";" $5 ";", ";" t ";") > 0'; }
+
+# Faehrt einen Gast herunter bzw. startet ihn (auf dem Node, auf dem er gerade ist) und wartet,
+# bis der Cluster den neuen Status meldet
+power() {          # <shutdown|start> <vmid>
+    local id type node status rest host cmd want now
+    read -r id type node status rest << EOF
+$(guests "$NODE_A_HOST" | awk -v id="$2" '$1 == id')
+EOF
+    case "$node" in "$A") host="$NODE_A_HOST" ;; "$B") host="$NODE_B_HOST" ;; *) die "$2 ist auf $node" ;; esac
+    case "$type:$1" in
+        qemu:shutdown) cmd="qm shutdown $2 --timeout $CT_TIMEOUT"; want=stopped ;;
+        lxc:shutdown)  cmd="pct shutdown $2 --timeout $CT_TIMEOUT"; want=stopped ;;
+        qemu:start)    cmd="qm start $2"; want=running ;;
+        lxc:start)     cmd="pct start $2"; want=running ;;
+    esac
+    info "$2 ${rest##* } auf $node: $cmd"
+    pve "$host" "$cmd" > /dev/null 2>&1 || die "$cmd fehlgeschlagen"
+    now="$(wait_state "$NODE_A_HOST" "$2" "$node" "$want")" || die "$2 ist '$now' statt '$node $want'"
+}
 
 has_tag() {        # <tags> <tag>
     case ";$1;" in *";$2;"*) return 0 ;; *) return 1 ;; esac
@@ -324,8 +351,10 @@ EOF
 ok "$(echo "$START" | awk -v n="$A" '$3 == n' | grep -c . || true) Gaeste auf $A, $(echo "$START" | awk -v n="$B" '$3 == n' | grep -c . || true) auf $B, keiner gesperrt oder HA-verwaltet"
 
 section "Plan"
-P1="$(echo "$START" | awk -v n="$A" '$3 == n' | unpinned)"
-P2="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b' | unpinned)"
+# Gaeste mit $STOP_TAG sind beim Migrieren schon gestoppt
+PLANNED="$(echo "$START" | awk -v t="$STOP_TAG" 'index(";" $5 ";", ";" t ";") > 0 { $4 = "stopped" } { print }')"
+P1="$(echo "$PLANNED" | awk -v n="$A" '$3 == n' | unpinned)"
+P2="$(echo "$PLANNED" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b' | unpinned)"
 PINNED="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b' | pinned | awk '{ printf "%s %s (%s), ", $1, $8, $3 }')"
 P3=""
 NOTAG=""
@@ -337,6 +366,8 @@ done << EOF
 $P2
 EOF
 P3="${P3%$'\n'}"
+TOSTOP="$(echo "$START" | awk '$4 == "running"' | awk -v t="$STOP_TAG" 'index(";" $5 ";", ";" t ";") > 0' | awk '{ printf "%s %s, ", $1, $8 }')"
+[ -z "$TOSTOP" ] || info "Tag $STOP_TAG, werden zuerst gestoppt und am Schluss wieder gestartet: ${TOSTOP%, }"
 [ -z "$PINNED" ] || info "Tag $PIN_TAG, bleiben und starten mit ihrem Node neu: ${PINNED%, }"
 print_plan "1. alle Gaeste von $A nach $B" "$B" "$P1"
 info "2. $A neu starten"
@@ -360,6 +391,14 @@ if [ "$YES" != 1 ]; then
 fi
 
 # Jede Phase liest den Stand frisch, falls sich seit dem Plan etwas geaendert hat
+section "Gaeste mit Tag $STOP_TAG stoppen"
+for id in $(guests "$NODE_A_HOST" | awk '$4 == "running"' | awk -v t="$STOP_TAG" 'index(";" $5 ";", ";" t ";") > 0 { print $1 }'); do
+    STOPPED="$STOPPED $id"
+    power shutdown "$id"
+    ok "$id gestoppt"
+done
+[ -n "$STOPPED" ] || info "keine"
+
 section "Alle Gaeste von $A nach $B"
 migrate_list "$NODE_A_HOST" "$B" "$(guests "$NODE_A_HOST" | awk -v n="$A" '$3 == n' | unpinned)"
 
@@ -381,6 +420,15 @@ done << EOF
 $(guests "$NODE_A_HOST")
 EOF
 migrate_list "$NODE_A_HOST" "$B" "${BACK%$'\n'}"
+
+section "Gaeste mit Tag $STOP_TAG wieder starten"
+[ -n "$STOPPED" ] || info "keine"
+while [ -n "$STOPPED" ]; do
+    id="${STOPPED# }"; id="${id%% *}"
+    power start "$id"
+    STOPPED="${STOPPED# "$id"}"
+    ok "$id laeuft wieder"
+done
 
 section "Ergebnis"
 END="$(guests "$NODE_A_HOST")"
