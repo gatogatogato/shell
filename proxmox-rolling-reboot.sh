@@ -38,25 +38,25 @@ fi
 
 usage() {
     cat << EOF
-Usage: $(basename "$0") [-n] [-y] [-h]
+Usage: $(basename "$0") [--dry-run] [--yes] [--help]
 
 Rolling Reboot: alle Gaeste von $NODE_A_HOST nach $NODE_B_HOST, $NODE_A_HOST neu starten,
 alle nach $NODE_A_HOST, $NODE_B_HOST neu starten, Gaeste mit Tag $HOME_TAG zurueck.
 
-    -n    Probelauf: pruefen und den Plan mit allen Befehlen zeigen, nichts aendern
-    -y    ohne Rueckfrage starten
-    -h    diese Hilfe
+    --dry-run    Probelauf: pruefen und den Plan mit allen Befehlen zeigen, nichts aendern
+    --yes        ohne Rueckfrage starten
+    --help       diese Hilfe
 EOF
     exit 1
 }
 
 DRY=0
 YES=0
-while getopts "nyh" opt; do
-    case $opt in
-        n) DRY=1 ;;
-        y) YES=1 ;;
-        *) usage ;;
+for arg in ${1+"$@"}; do
+    case $arg in
+        --dry-run) DRY=1 ;;
+        --yes)     YES=1 ;;
+        *)         usage ;;
     esac
 done
 
@@ -312,7 +312,7 @@ print_plan "5. Gaeste mit Tag $HOME_TAG zurueck nach $B" "$B" "$P3"
 
 if [ "$DRY" = 1 ]; then
     echo
-    ok "Probelauf: nichts geaendert. Starten ohne -n."
+    ok "Probelauf: nichts geaendert. Starten ohne --dry-run."
     echo
     exit 0
 fi
