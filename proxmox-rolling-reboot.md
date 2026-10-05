@@ -83,11 +83,12 @@ Vor dem Start bricht es ab, wenn
 
 Während des Laufs:
 
-- Migrationen laufen nacheinander. Laufende VMs live (`qm migrate --online
+- Migrationen laufen in Runden zu je 4 gleichzeitig (wie im GUI, `PARALLEL`). Laufende VMs live (`qm migrate --online
   --with-local-disks`), laufende Container mit Neustart (`pct migrate --restart`, 180 s zum
   Herunterfahren), gestoppte Gäste offline. Gestoppte bleiben gestoppt (z. B. hercules).
-- Nach jeder Migration prüft es, ob der Gast auf dem Ziel ist und im gleichen Zustand.
-  Schlägt eine fehl, bricht es ab und startet keinen Node neu.
+- Nach jeder Runde prüft es, ob jeder Gast auf dem Ziel ist und im gleichen Zustand. Ein
+  Container darf dafür bis zu 120 s zum Starten brauchen (`STATE_TIMEOUT`). Schlägt etwas
+  fehl, bricht es nach der Runde ab und startet keinen Node neu.
 - Ein Node wird nur neu gestartet, wenn kein Gast mehr auf ihm ist (ausser mit Tag
   `nomigrate`).
 - Nach dem Neustart wartet es, bis der Node neu gebootet hat, im Cluster online ist, der
