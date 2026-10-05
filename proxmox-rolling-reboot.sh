@@ -6,6 +6,8 @@
 #   2. alle Gaeste von n02 nach n01 migrieren, n02 neu starten
 #   3. alle Gaeste mit Tag node02 zurueck nach n02
 #
+# Gaeste mit Tag nomigrate (doppelt vorhandene wie Pi-hole und cloudflared) werden nie migriert,
+# sondern mit ihrem Node heruntergefahren und per "Beim Booten starten" wieder gestartet.
 # Laeuft auf dem Mac (oder auf proxmox-n03) und steuert die Nodes per ssh als root. Auf n01
 # oder n02 selbst geht es nicht, weil das Skript den eigenen Node neu starten muesste.
 # proxmox-n03 bekommt nie einen Gast und wird nicht neu gestartet.
@@ -20,6 +22,7 @@ CONFIG="${CONFIG:-$HOME/.config/proxmox-rolling-reboot.conf}"
 NODE_A_HOST="proxmox-n01.lan"                    # wird zuerst neu gestartet
 NODE_B_HOST="proxmox-n02.lan"
 HOME_TAG="node02"                                # Gaeste mit diesem Tag gehoeren auf NODE_B
+PIN_TAG="nomigrate"                              # bleiben auf ihrem Node und starten mit ihm neu
 SSH_USER="root"
 CT_TIMEOUT=180                                   # Sekunden, die ein Container zum Herunterfahren hat
 BOOT_TIMEOUT=900                                 # so lange darf ein Neustart dauern
@@ -132,6 +135,16 @@ active_tasks() {   # <host> <node>
         print join(", ", map { $_->{type} . ($_->{id} ? " $_->{id}" : "") } @$d);'
 }
 
+# Ob ein Gast beim Booten des Nodes startet: 1 oder 0
+onboot() {         # <host> <node> <typ> <vmid>
+    pve "$1" pvesh get "/nodes/$2/$3/$4/config" --output-format json | perl -MJSON::PP -e '
+        print decode_json(do { local $/; <STDIN> })->{onboot} ? 1 : 0;'
+}
+
+# Filter fuer Zeilen aus guests(): ohne bzw. nur die Gaeste mit Tag $PIN_TAG
+unpinned() { awk -v t="$PIN_TAG" 'index(";" $5 ";", ";" t ";") == 0'; }
+pinned()   { awk -v t="$PIN_TAG" 'index(";" $5 ";", ";" t ";") > 0'; }
+
 has_tag() {        # <tags> <tag>
     case ";$1;" in *";$2;"*) return 0 ;; *) return 1 ;; esac
 }
@@ -170,12 +183,16 @@ $list
 EOF
 }
 
-# Startet einen leeren Node neu und wartet, bis er wieder im Cluster ist
+# Startet einen Node neu, auf dem nur noch Gaeste mit Tag $PIN_TAG sind, und wartet, bis er
+# wieder im Cluster ist und diese Gaeste wieder laufen
 reboot_node() {    # <host> <node> <host des anderen nodes>
-    local host="$1" node="$2" other="$3" left boot t0 deadline new state
-    left="$(guests "$other" | awk -v n="$node" '$3 == n')"
+    local host="$1" node="$2" other="$3" left stay boot t0 deadline new state down id
+    left="$(guests "$other" | awk -v n="$node" '$3 == n' | unpinned)"
     [ -z "$left" ] || die "Auf $node sind noch Gaeste, kein Neustart: $(echo "$left" | awk '{ print $1 }' | tr '\n' ' ' | sed 's/ $//')"
     [ "$(quorum_spare "$other")" = ja ] || die "Ohne $node haette der Cluster kein Quorum mehr. Abbruch."
+
+    stay="$(guests "$other" | awk -v n="$node" '$3 == n && $4 == "running" { print $1 }' | tr '\n' ' ' | sed 's/ $//')"
+    [ -z "$stay" ] || info "Bleiben auf $node und starten mit ihm neu: $stay"
 
     boot="$(pve "$host" cat /proc/sys/kernel/random/boot_id)"
     info "$node startet neu"
@@ -183,7 +200,8 @@ reboot_node() {    # <host> <node> <host des anderen nodes>
     t0=$(date +%s)
     deadline=$((t0 + BOOT_TIMEOUT))
 
-    # 1. neu gebootet (andere boot_id), 2. im Cluster online mit Quorum, 3. PVE-Dienste laufen
+    # 1. neu gebootet (andere boot_id), 2. im Cluster online mit Quorum, PVE-Dienste laufen,
+    # 3. die gebliebenen Gaeste laufen wieder
     state="Neustart"
     while :; do
         [ "$(date +%s)" -lt "$deadline" ] \
@@ -198,10 +216,17 @@ reboot_node() {    # <host> <node> <host des anderen nodes>
                     && [ "$(quorum_spare "$other" 2>/dev/null)" = ja ] \
                     && pve "$host" systemctl is-active --quiet pve-cluster corosync pvedaemon pveproxy pvestatd \
                     && pve "$other" pvesh get "/nodes/$node/status" > /dev/null 2>&1 \
-                    && break ;;
+                    && { state="Gaeste"; info "$node ist im Cluster, Quorum ok ($(mmss $(($(date +%s) - t0))))"; } ;;
+            Gaeste)
+                down=""
+                for id in $stay; do
+                    guests "$other" 2>/dev/null | awk -v id="$id" '$1 == id && $4 == "running"' | grep -q . || down="$down $id"
+                done
+                [ -z "$down" ] && break ;;
         esac
     done
-    info "$node ist im Cluster, Quorum ok. $SETTLE s Pause."
+    [ -z "$stay" ] || info "$stay laufen wieder"
+    info "$SETTLE s Pause"
     sleep "$SETTLE"
     ok "$node neu gestartet ($(mmss $(($(date +%s) - t0))))"
 }
@@ -253,11 +278,20 @@ BAD="$(echo "$START" | awk '$6 != "-" { print $1 " " $8 " ist HA-verwaltet" }
 [ -z "$BAD" ] || die "Nicht migrierbar: $(echo "$BAD" | tr '\n' ';' | sed 's/;$//; s/;/; /g')"
 ON_OTHER="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 != a && $3 != b { print $1 " " $8 " auf " $3 }')"
 [ -z "$ON_OTHER" ] || warn "Bleiben, wo sie sind: $(echo "$ON_OTHER" | tr '\n' ';' | sed 's/;$//; s/;/; /g')"
+NOBOOT=""
+while read -r id type node status rest; do
+    [ -n "$id" ] && [ "$status" = running ] || continue
+    [ "$(onboot "$NODE_A_HOST" "$node" "$type" "$id")" = 1 ] || NOBOOT="$NOBOOT $id"
+done << EOF
+$(echo "$START" | pinned)
+EOF
+[ -z "$NOBOOT" ] || die "Tag $PIN_TAG, aber 'Beim Booten starten' aus:$NOBOOT. Einschalten oder Tag entfernen."
 ok "$(echo "$START" | awk -v n="$A" '$3 == n' | grep -c . || true) Gaeste auf $A, $(echo "$START" | awk -v n="$B" '$3 == n' | grep -c . || true) auf $B, keiner gesperrt oder HA-verwaltet"
 
 section "Plan"
-P1="$(echo "$START" | awk -v n="$A" '$3 == n')"
-P2="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b')"
+P1="$(echo "$START" | awk -v n="$A" '$3 == n' | unpinned)"
+P2="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b' | unpinned)"
+PINNED="$(echo "$START" | awk -v a="$A" -v b="$B" '$3 == a || $3 == b' | pinned | awk '{ printf "%s %s (%s), ", $1, $8, $3 }')"
 P3=""
 NOTAG=""
 while read -r id type node status tags ha lock name; do
@@ -268,6 +302,7 @@ done << EOF
 $P2
 EOF
 P3="${P3%$'\n'}"
+[ -z "$PINNED" ] || info "Tag $PIN_TAG, bleiben und starten mit ihrem Node neu: ${PINNED%, }"
 print_plan "1. alle Gaeste von $A nach $B" "$B" "$P1"
 info "2. $A neu starten"
 print_plan "3. alle Gaeste nach $A" "$A" "$P2"
@@ -291,13 +326,13 @@ fi
 
 # Jede Phase liest den Stand frisch, falls sich seit dem Plan etwas geaendert hat
 section "Alle Gaeste von $A nach $B"
-migrate_list "$NODE_A_HOST" "$B" "$(guests "$NODE_A_HOST" | awk -v n="$A" '$3 == n')"
+migrate_list "$NODE_A_HOST" "$B" "$(guests "$NODE_A_HOST" | awk -v n="$A" '$3 == n' | unpinned)"
 
 section "$A neu starten"
 reboot_node "$NODE_A_HOST" "$A" "$NODE_B_HOST"
 
 section "Alle Gaeste von $B nach $A"
-migrate_list "$NODE_B_HOST" "$A" "$(guests "$NODE_B_HOST" | awk -v n="$B" '$3 == n')"
+migrate_list "$NODE_B_HOST" "$A" "$(guests "$NODE_B_HOST" | awk -v n="$B" '$3 == n' | unpinned)"
 
 section "$B neu starten"
 reboot_node "$NODE_B_HOST" "$B" "$NODE_A_HOST"
@@ -305,7 +340,7 @@ reboot_node "$NODE_B_HOST" "$B" "$NODE_A_HOST"
 section "Gaeste mit Tag $HOME_TAG zurueck nach $B"
 BACK=""
 while read -r id type node status tags ha lock name; do
-    [ -n "$id" ] && [ "$node" = "$A" ] && has_tag "$tags" "$HOME_TAG" \
+    [ -n "$id" ] && [ "$node" = "$A" ] && has_tag "$tags" "$HOME_TAG" && ! has_tag "$tags" "$PIN_TAG" \
         && BACK="$BACK$id $type $node $status $tags $ha $lock $name"$'\n'
 done << EOF
 $(guests "$NODE_A_HOST")

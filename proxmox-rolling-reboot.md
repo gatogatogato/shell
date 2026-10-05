@@ -7,8 +7,31 @@ ein Gast länger weg ist als für seine Migration:
 2. alle Gäste von n02 nach n01 migrieren, n02 neu starten
 3. alle Gäste mit Tag `node02` zurück nach n02
 
-Gäste ohne Tag `node02` bleiben danach auf n01. proxmox-n03 wird nie angefasst und bekommt
-nie einen Gast.
+Gäste ohne Tag `node02` bleiben danach auf n01. Gäste mit Tag `nomigrate` werden nie
+migriert (siehe unten). proxmox-n03 wird nie angefasst und bekommt nie einen Gast.
+
+## Gäste, die nicht wandern (Tag `nomigrate`)
+
+Pi-hole und cloudflared gibt es je einmal pro Node (Pi-hole CT 117 auf n02 und CT 105 auf
+n01, cloudflared1 auf n01 und cloudflared2 auf n02). Die müssen nicht umziehen: Während ein
+Node neu startet, übernimmt der Zwilling auf dem anderen. Solche Gäste bekommen das Tag
+`nomigrate`. Das Skript lässt sie stehen, Proxmox fährt sie mit dem Node sauber herunter und
+startet sie beim Booten wieder. Das Skript wartet, bis sie wieder laufen, bevor es weitergeht.
+
+Dafür muss beim Gast „Beim Booten starten“ an sein, sonst bricht das Skript schon bei der
+Prüfung ab. Einrichten in der Proxmox-Oberfläche, pro Gast:
+
+1. Gast anklicken, oben neben dem Namen auf den Stift bei den Tags, `nomigrate` hinzufügen
+   (bestehende Tags wie `node02` bleiben), Haken.
+2. „Optionen“ → „Beim Booten starten“ → Ja.
+
+Nachprüfen auf proxmox-n02 als root (für 117, auf n01 entsprechend für 105 usw.):
+
+```
+pct config 117 | grep -E '^(tags|onboot)'
+```
+
+Erwartet: `onboot: 1` und `tags:` mit `nomigrate`.
 
 ## Wo es läuft
 
@@ -55,6 +78,7 @@ Vor dem Start bricht es ab, wenn
 - ein Node offline ist oder der Cluster ohne einen Node kein Quorum mehr hätte
   (n03 bzw. später das QDevice muss laufen),
 - auf n01 oder n02 gerade ein Task läuft (z. B. das Backup Sonntag 01:00),
+- ein laufender Gast das Tag `nomigrate` hat, aber „Beim Booten starten“ aus ist,
 - ein Gast gesperrt (Lock), HA-verwaltet oder weder `running` noch `stopped` ist.
 
 Während des Laufs:
@@ -64,10 +88,12 @@ Während des Laufs:
   Herunterfahren), gestoppte Gäste offline. Gestoppte bleiben gestoppt (z. B. hercules).
 - Nach jeder Migration prüft es, ob der Gast auf dem Ziel ist und im gleichen Zustand.
   Schlägt eine fehl, bricht es ab und startet keinen Node neu.
-- Ein Node wird nur neu gestartet, wenn kein Gast mehr auf ihm ist.
+- Ein Node wird nur neu gestartet, wenn kein Gast mehr auf ihm ist (ausser mit Tag
+  `nomigrate`).
 - Nach dem Neustart wartet es, bis der Node neu gebootet hat, im Cluster online ist, der
-  Cluster Quorum hat und die PVE-Dienste laufen, dann noch 30 s. Nach 15 min ohne Rückkehr
-  bricht es ab; alle Gäste laufen dann auf dem anderen Node.
+  Cluster Quorum hat, die PVE-Dienste laufen und die `nomigrate`-Gäste wieder laufen, dann
+  noch 30 s. Nach 15 min ohne Rückkehr bricht es ab; alle anderen Gäste laufen dann auf dem
+  anderen Node.
 
 Am Ende zeigt es, welcher Gast wo läuft, und warnt, falls ein Gast nicht mehr im gleichen
 Zustand ist wie vorher.
