@@ -25,3 +25,4 @@ exclude:
   - dreame-vacuum-r9542b.lan
   - dreame_vacuum_p2029.lan
   - dreame_vacuum_r2250.lan
+  - reolink-terrasse.lan             # Akku-Kamera schlaeft, Pings kosten Batterie
