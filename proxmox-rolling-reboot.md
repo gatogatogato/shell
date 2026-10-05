@@ -33,6 +33,15 @@ pct config 117 | grep -E '^(tags|onboot)'
 
 Erwartet: `onboot: 1` und `tags:` mit `nomigrate`.
 
+## Gäste, die während des Laufs aus sind (Tag `stopfirst`)
+
+Uptime Kuma meldet während der Migrationen und Neustarts lauter Ausfälle. Gäste mit Tag
+`stopfirst` fährt das Skript deshalb als Erstes herunter, migriert sie gestoppt mit und startet
+sie ganz am Schluss wieder. Gedacht für debian-uptimekuma (CT 103). Tag setzen wie oben.
+
+Bricht das Skript ab, bleiben diese Gäste gestoppt; das Skript sagt dann welche. Von Hand
+starten auf dem Node, auf dem der Gast liegt, als root: `pct start 103`.
+
 ## Wo es läuft
 
 Auf dem Mac, im Checkout des shell-Repos. Das Skript steuert die Nodes per `ssh root@…`.
