@@ -64,7 +64,7 @@ Stand 30.09.2026 (erster Probelauf: 72 Ziele, 8 davon schon von Hand überwacht)
 | `miele-w1.lan`, `siemens-dishwasher.lan`, `electrolux-ir.lan` | Haushaltsgeräte sind oft nur im WLAN, solange sie laufen. |
 | `stehpult-office.lan` | Steuerung ist nicht dauernd im WLAN. |
 | `dreame-vacuum-r9542b.lan`, `dreame_vacuum_p2029.lan`, `dreame_vacuum_r2250.lan` | Saugroboter schlafen in der Station. |
-| `reolink-terrasse.lan` | Akku-Kamera geht oft in den Schlafmodus, die Pings kosten Batterie (Monitor am 05.10.2026 von Hand gelöscht). |
+| `reolink-terasse.lan` | Akku-Kamera geht oft in den Schlafmodus, die Pings kosten Batterie (Monitor am 05.10.2026 von Hand gelöscht). |
 
 Die Geräte aus den letzten vier Zeilen sind Vermutungen: Ist eines davon doch immer erreichbar,
 den Eintrag löschen, dann legt der nächste `--apply` den Monitor an.
