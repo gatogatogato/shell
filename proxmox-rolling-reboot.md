@@ -58,10 +58,10 @@ ssh-copy-id root@proxmox-n02.lan
 Auf dem Mac im Terminal, erst der Probelauf (prüft alles und zeigt jeden Befehl, ändert nichts):
 
 ```
-cd ~/Documents/Code/shell && git pull && ./proxmox-rolling-reboot.sh -n
+cd ~/Documents/Code/shell && git pull && ./proxmox-rolling-reboot.sh --dry-run
 ```
 
-Passt der Plan, ohne `-n` starten. Das Skript zeigt den Plan nochmal und fragt; mit `ja` geht
+Passt der Plan, ohne `--dry-run` starten. Das Skript zeigt den Plan nochmal und fragt; mit `ja` geht
 es los:
 
 ```
