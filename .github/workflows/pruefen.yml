@@ -1,0 +1,40 @@
+# Prueft jeden Push und PR: bash/sh mit shellcheck, zsh mit zsh -n, Python mit py_compile.
+name: Prüfen
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruefen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Werkzeuge installieren
+        run: |
+          pip install shellcheck-py==0.11.0.1
+          sudo apt-get install -y -q zsh
+
+      - name: shellcheck (bash und sh)
+        run: |
+          # zsh-Skripte kann shellcheck nicht lesen, die prueft der naechste Schritt.
+          grep -L '^#!.*zsh' -- *.sh | xargs shellcheck
+
+      - name: zsh -n (zsh-Skripte)
+        run: |
+          for f in $(grep -l '^#!.*zsh' -- *.sh); do
+            echo "$f"; zsh -n "$f"
+          done
+
+      - name: Python-Syntax
+        run: python -m py_compile *.py
