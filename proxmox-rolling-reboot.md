@@ -8,7 +8,7 @@ ein Gast länger weg ist als für seine Migration:
 3. alle Gäste mit Tag `node02` zurück nach n02
 
 Gäste ohne Tag `node02` bleiben danach auf n01. Gäste mit Tag `nomigrate` werden nie
-migriert (siehe unten). proxmox-n03 wird nie angefasst und bekommt nie einen Gast.
+migriert (siehe unten). Das QDevice (debian-qdevice) wird nie angefasst.
 
 ## Gäste, die nicht wandern (Tag `nomigrate`)
 
@@ -46,7 +46,7 @@ starten auf dem Node, auf dem der Gast liegt, als root: `pct start 103`.
 
 Auf dem Mac, im Checkout des shell-Repos. Das Skript steuert die Nodes per `ssh root@…`.
 Auf n01 oder n02 selbst geht es nicht, weil es den eigenen Node neu starten müsste (es
-bricht dort ab). proxmox-n03 geht auch, solange es ihn gibt.
+bricht dort ab).
 
 Einmalig auf dem Mac testen, ob ssh als root ohne Passwort geht:
 
@@ -85,7 +85,7 @@ Vor dem Start bricht es ab, wenn
 
 - ssh als root auf einen der Nodes nicht geht,
 - ein Node offline ist oder der Cluster ohne einen Node kein Quorum mehr hätte
-  (n03 bzw. später das QDevice muss laufen),
+  (das QDevice muss laufen),
 - auf n01 oder n02 gerade ein Task läuft (z. B. das Backup Sonntag 01:00),
 - ein laufender Gast das Tag `nomigrate` hat, aber „Beim Booten starten“ aus ist,
 - ein Gast gesperrt (Lock), HA-verwaltet oder weder `running` noch `stopped` ist.

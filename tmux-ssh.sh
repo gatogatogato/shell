@@ -9,7 +9,7 @@ readonly CONNECT_TIMEOUT=3
 readonly SERVERS=(
     proxmox-n01
     proxmox-n02
-    proxmox-n03
+    debian-qdevice
     debian-websrv
     debian-flickr
     debian-hercules
