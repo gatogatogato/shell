@@ -1,8 +1,9 @@
 # --------------------------------------------------------------------------------------------------------------------
-# This folder is synced to dropbox and can be cloned from GitHub with
-
-cd && rm -rf ~/shell && git clone -q https://github.com/gatogatogato/shell ~/shell && zsh ~/shell/deploy.sh
+# Rune clone.sh
+# --------------------------------------------------------------------------------------------------------------------
 
 # --------------------------------------------------------------------------------------------------------------------
-# That way you can quickly set up your ZSH.
+# Pruefungen auf GitHub (.github/workflows/pruefen.yml), bei jedem Push und PR:
+#   shellcheck fuer bash/sh, zsh -n fuer zsh-Skripte, python -m py_compile fuer *.py
+# Lokal auf dem Mac: brew install shellcheck && shellcheck $(grep -L '^#!.*zsh' *.sh)
 # --------------------------------------------------------------------------------------------------------------------

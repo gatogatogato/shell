@@ -13,9 +13,9 @@ tab=$(echo -en "\t")
 # whitespace characters with a single space, and remove any spaces from the
 # beginning of each line.
 function clean_cron_lines() {
-    while read line ; do
+    while read -r line ; do
         echo "${line}" |
-        egrep --invert-match '^($|\s*#|\s*[[:alnum:]_]+=)' |
+        grep -E --invert-match '^($|\s*#|\s*[[:alnum:]_]+=)' |
         sed --regexp-extended "s/\s+/ /g" |
         sed --regexp-extended "s/^ //"
     done;
@@ -25,8 +25,8 @@ function clean_cron_lines() {
 # run-parts command, and for those that do, show each job file in the run-parts
 # directory as if it were scheduled explicitly.
 function lookup_run_parts() {
-    while read line ; do
-        match=$(echo "${line}" | egrep -o 'run-parts (-{1,2}\S+ )*\S+')
+    while read -r line ; do
+        match=$(echo "${line}" | grep -E -o 'run-parts (-{1,2}\S+ )*\S+')
 
         if [[ -z "${match}" ]] ; then
             echo "${line}"
@@ -54,7 +54,7 @@ cat "${CRONDIR}"/* | clean_cron_lines >>"${temp}"  # */ <not a comment>
 
 # Add each user's crontab (if it exists). Insert the user's name between the
 # five time fields and the command.
-while read user ; do
+while read -r user ; do
     crontab -l -u "${user}" 2>/dev/null |
     clean_cron_lines |
     sed --regexp-extended "s/^((\S+ +){5})(.+)$/\1${user} \3/" >>"${temp}"

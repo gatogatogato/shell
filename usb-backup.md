@@ -22,6 +22,7 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 | `SHA256SUMS` | Prüfsummen aller Dateien | |
 | `WARNUNGEN.txt` | nur wenn etwas fehlte oder zu alt war | |
 | `LIESMICH.md` | diese Anleitung | |
+| `NEXTCLOUD-2FA.md` | Nextcloud-2FA abschalten und neu einrichten (`nextcloud-2fa.md`) | |
 
 Die letzten 3 Läufe bleiben (`KEEP`). Ein alter Lauf wird erst gelöscht, wenn der neue
 vollständig ist. Unveränderte Nextcloud-Dateien sind zwischen den Läufen Hardlinks und
@@ -116,5 +117,6 @@ Keine Ausgabe heisst: alles in Ordnung.
   (z. B. `/var/lib/vz/dump/`), dann in Proxmox den Storage öffnen → Backups → Restore.
 - **Home Assistant:** beim Onboarding einer neuen Installation „Aus Backup wiederherstellen“
   → `homeassistant/*.tar`.
-- **Nextcloud:** die Dateien liegen offen in `nextcloud/`.
+- **Nextcloud:** die Dateien liegen offen in `nextcloud/`. Login klappt nicht mehr (YubiKey weg,
+  2FA kaputt): `NEXTCLOUD-2FA.md` auf der Disk, dort steht, wie man 2FA auf TrueNAS abschaltet.
 - **Repos:** `git clone /Volumes/LastResort/homelab-backup/<Datum_Zeit>/git/ansible.git`.

@@ -65,7 +65,7 @@ setzt du `Strict-Transport-Security: max-age=15552000`. Nextcloud prüft genau d
 Kein `preload`, keine `includeSubDomains`.
 Die zonenweite HSTS-Option bei Cloudflare geht auch. Dann gilt sie aber für alle Subdomains.
 
-### 4. 2FA für alle Konten und eine Passwort-Richtlinie (hoch, muss ich noch sehen)
+### 4. 2FA für alle Konten und eine Passwort-Richtlinie (2FA erledigt 5.10., siehe nextcloud-2fa.md)
 
 - Apps *Two-Factor TOTP Provider* (und optional WebAuthn) aktivieren und für alle Konten erzwingen:
   *Verwaltung → Sicherheit → Zwei-Faktor-Authentifizierung erzwingen*.

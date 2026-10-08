@@ -1,4 +1,6 @@
 #!/bin/bash
+# Laufordner und Bitwarden-Exporte haben feste Namen ohne Sonderzeichen, ls ist hier sicher.
+# shellcheck disable=SC2012
 # Notfallkopie des Homelabs auf eine verschluesselte USB-Disk (Mac, Variante A von Idee 7)
 # Disk anstecken, Skript starten, Disk auswerfen und ausser Haus bringen.
 # Doku und Restore: usb-backup.md
@@ -155,6 +157,7 @@ fi
 # --- 2. TrueNAS-Config ------------------------------------------------------------------
 section "TrueNAS-Config"
 mkdir -p "$RUN/truenas"
+# shellcheck disable=SC2016  # laeuft auf TrueNAS, $t soll dort expandieren
 ts 'set -e; t=$(mktemp -d); trap "rm -rf $t" EXIT
     if command -v sqlite3 >/dev/null; then sqlite3 /data/freenas-v1.db ".backup $t/freenas-v1.db"
     else cp /data/freenas-v1.db "$t/"; fi
@@ -195,7 +198,7 @@ if [ -d "$NEXTCLOUD_DIR" ]; then
     link=""
     [ -n "$PREV" ] && [ -d "${PREV}nextcloud" ] && link="--link-dest=${PREV}nextcloud"
     info "$NEXTCLOUD_DIR${link:+ (unveränderte Dateien als Hardlink zum letzten Lauf)}"
-    rsync -a $link --exclude '.DS_Store' --exclude '.sync_*.db*' --exclude '._sync_*.db*' \
+    rsync -a ${link:+"$link"} --exclude '.DS_Store' --exclude '.sync_*.db*' --exclude '._sync_*.db*' \
         --exclude '.owncloudsync.log*' --exclude '.nextcloudsync.log*' \
         "$NEXTCLOUD_DIR/" "$RUN/nextcloud/"
     ok "$(find "$RUN/nextcloud" -type f | wc -l | tr -d ' ') Dateien, $(size "$RUN/nextcloud")"
@@ -211,12 +214,14 @@ for r in $REPOS; do
     if err="$(git clone -q --mirror "$GIT_URL/$r.git" "$RUN/git/$r.git" 2>&1)"; then done_repos="$done_repos $r"
     else warn "git clone $r fehlgeschlagen: $(printf '%s' "$err" | grep -v '^$' | tail -1)"; fi
 done
-[ -z "$done_repos" ] || ok "$(echo $done_repos | wc -w | tr -d ' ') Repos:$done_repos"
+[ -z "$done_repos" ] || ok "$(echo "$done_repos" | wc -w | tr -d ' ') Repos:$done_repos"
 
 # --- 7. Pruefsummen, Anleitung, abschliessen --------------------------------------------
 section "Abschluss"
 [ -f "$HERE/usb-backup.md" ] && cp "$HERE/usb-backup.md" "$RUN/LIESMICH.md"
+[ -f "$HERE/nextcloud-2fa.md" ] && cp "$HERE/nextcloud-2fa.md" "$RUN/NEXTCLOUD-2FA.md"
 info "SHA256SUMS berechnen"
+# shellcheck disable=SC2094  # find laesst SHA256SUMS aus
 (cd "$RUN" && find . -type f ! -name SHA256SUMS -print0 | xargs -0 shasum -a 256 > SHA256SUMS)
 [ -n "$WARN" ] && printf '%s' "$WARN" > "$RUN/WARNUNGEN.txt"
 mv "$RUN" "$BASE/$STAMP"
