@@ -32,6 +32,7 @@ HA_MAX_DAYS=4                                    # HA sichert Mo/Mi/Fr, nur auto
 DUMP_DIR="/mnt/tank01/proxmox-raw-backups/dump"
 DUMP_MAX_DAYS=10                                 # aeltere Archive gehoeren zu entfernten Gaesten
 NEXTCLOUD_DIR="$HOME/Nextcloud"
+FOTOS_DIR="/mnt/tank01/nextcloud/userdata/gato/files/Photos"   # iPhone-Upload, auf dem Mac nicht synchronisiert
 EXPORT_DIR="$HOME/Downloads"
 EXPORT_MAX_DAYS=100
 GIT_URL="git@github.com:gatogatogato"
@@ -49,7 +50,7 @@ STAMP="$(date +%Y-%m-%d_%H%M%S)"
 RUN="$BASE/$STAMP.partial"
 SSH="ssh -o BatchMode=yes -o ControlMaster=auto -o ControlPath=$HOME/.ssh/usb-backup-%C -o ControlPersist=300"
 WARN=""
-STEPS=9
+STEPS=10
 T0=$(date +%s)
 
 # --- Ausgabe ----------------------------------------------------------------------------
@@ -275,7 +276,19 @@ else
     warn "Nextcloud-Ordner $NEXTCLOUD_DIR nicht gefunden"
 fi
 
-# --- 7. GitHub-Repos --------------------------------------------------------------------
+# --- 7. Nextcloud-Fotos direkt von TrueNAS ---------------------------------------------
+section "Nextcloud-Fotos"
+if ts "test -d '$FOTOS_DIR'"; then
+    link=""
+    [ -n "$PREV" ] && [ -d "${PREV}nextcloud-fotos" ] && link="--link-dest=${PREV}nextcloud-fotos"
+    info "$TRUENAS:$FOTOS_DIR${link:+ (unveränderte Dateien als Hardlink zum letzten Lauf)}"
+    rsync -a ${link:+"$link"} -e "$SSH" "$TRUENAS:$FOTOS_DIR/" "$RUN/nextcloud-fotos/"
+    ok "$(find "$RUN/nextcloud-fotos" -type f | wc -l | tr -d ' ') Dateien, $(size "$RUN/nextcloud-fotos")"
+else
+    warn "Fotos-Ordner $FOTOS_DIR auf TrueNAS nicht gefunden"
+fi
+
+# --- 8. GitHub-Repos --------------------------------------------------------------------
 section "GitHub-Repos"
 mkdir -p "$RUN/git"
 done_repos=""
@@ -285,7 +298,7 @@ for r in $REPOS; do
 done
 [ -z "$done_repos" ] || ok "$(echo "$done_repos" | wc -w | tr -d ' ') Repos:$done_repos"
 
-# --- 8. Pruefsummen, Anleitung, abschliessen --------------------------------------------
+# --- 9. Pruefsummen, Anleitung, abschliessen ----------------------------------------------
 section "Abschluss"
 [ -f "$HERE/usb-backup.md" ] && cp "$HERE/usb-backup.md" "$RUN/LIESMICH.md"
 [ -f "$HERE/nextcloud-2fa.md" ] && cp "$HERE/nextcloud-2fa.md" "$RUN/NEXTCLOUD-2FA.md"
