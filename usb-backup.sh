@@ -282,7 +282,20 @@ if ts "test -d '$FOTOS_DIR'"; then
     link=""
     [ -n "$PREV" ] && [ -d "${PREV}nextcloud-fotos" ] && link="--link-dest=${PREV}nextcloud-fotos"
     info "$TRUENAS:$FOTOS_DIR${link:+ (unveränderte Dateien als Hardlink zum letzten Lauf)}"
-    rsync -a ${link:+"$link"} -e "$SSH" "$TRUENAS:$FOTOS_DIR/" "$RUN/nextcloud-fotos/"
+    # Probelauf zaehlt, was neu kopiert werden muss; der echte Lauf zaehlt dann hoch.
+    # --out-format listet nur uebertragene Dateien, per Hardlink uebernommene nicht.
+    fotos_all=$(ts "find '$FOTOS_DIR' -type f | wc -l" | tr -d ' ')
+    fotos_new=$(rsync -an ${link:+"$link"} --out-format='%n' -e "$SSH" "$TRUENAS:$FOTOS_DIR/" "$RUN/nextcloud-fotos/" \
+        | grep -vc '/$' || true)
+    info "$fotos_all Dateien auf TrueNAS, davon $fotos_new neu zu kopieren"
+    n=0 arrow="$(paint '>' 36)"
+    rsync -a ${link:+"$link"} --out-format='%n' -e "$SSH" "$TRUENAS:$FOTOS_DIR/" "$RUN/nextcloud-fotos/" \
+        | while IFS= read -r f; do
+            case "$f" in */) continue ;; esac
+            n=$((n + 1))
+            if [ "$COLOR" = 1 ]; then printf '\r  %s %d/%d Fotos kopiert' "$arrow" "$n" "$fotos_new"; fi
+        done
+    if [ "$COLOR" = 1 ] && [ "$fotos_new" -gt 0 ]; then echo; fi
     ok "$(find "$RUN/nextcloud-fotos" -type f | wc -l | tr -d ' ') Dateien, $(size "$RUN/nextcloud-fotos")"
 else
     warn "Fotos-Ordner $FOTOS_DIR auf TrueNAS nicht gefunden"
