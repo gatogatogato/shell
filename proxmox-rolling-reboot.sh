@@ -10,9 +10,9 @@
 # sondern mit ihrem Node heruntergefahren und per "Beim Booten starten" wieder gestartet.
 # Gaeste mit Tag stopfirst (Uptime Kuma, damit es keine Fehlalarme gibt) stoppt das Skript
 # am Anfang und startet sie ganz am Schluss wieder.
-# Laeuft auf dem Mac (oder auf proxmox-n03) und steuert die Nodes per ssh als root. Auf n01
-# oder n02 selbst geht es nicht, weil das Skript den eigenen Node neu starten muesste.
-# proxmox-n03 bekommt nie einen Gast und wird nicht neu gestartet.
+# Laeuft auf dem Mac und steuert die Nodes per ssh als root. Auf n01 oder n02 selbst geht es
+# nicht, weil das Skript den eigenen Node neu starten muesste. Das QDevice (debian-qdevice)
+# gibt die dritte Stimme und wird nicht angefasst.
 # Gestoppte Gaeste werden offline migriert und bleiben gestoppt.
 #
 # Konfig (optional): ~/.config/proxmox-rolling-reboot.conf, jede Variable unten laesst sich dort
@@ -316,7 +316,7 @@ B="$(pve "$NODE_B_HOST" hostname 2>/dev/null)" \
     || die "Kein ssh als $SSH_USER auf $NODE_B_HOST. Test: ssh $SSH_USER@$NODE_B_HOST hostname"
 [ "$A" != "$B" ] || die "$NODE_A_HOST und $NODE_B_HOST sind derselbe Node ($A)"
 case "$HERE_NAME" in
-    "$A"|"$B") die "Laeuft auf $HERE_NAME, der selbst neu gestartet wird. Auf dem Mac oder proxmox-n03 starten." ;;
+    "$A"|"$B") die "Laeuft auf $HERE_NAME, der selbst neu gestartet wird. Auf dem Mac starten." ;;
 esac
 ok "ssh auf $A und $B"
 
@@ -325,7 +325,7 @@ for n in "$A" "$B"; do
     echo "$NODES" | grep -qx "$n 1" || die "$n ist laut Cluster nicht online"
 done
 OTHERS="$(echo "$NODES" | awk -v a="$A" -v b="$B" '$1 != a && $1 != b { print $1 }' | tr '\n' ' ' | sed 's/ $//')"
-[ "$(quorum_spare "$NODE_A_HOST")" = ja ] || die "Der Cluster haette ohne einen Node kein Quorum. Laeuft n03 bzw. das QDevice?"
+[ "$(quorum_spare "$NODE_A_HOST")" = ja ] || die "Der Cluster haette ohne einen Node kein Quorum. Laeuft das QDevice?"
 ok "Cluster mit Quorum, auch wenn ein Node fehlt${OTHERS:+ (nicht angefasst: $OTHERS)}"
 
 for n in "$A" "$B"; do
