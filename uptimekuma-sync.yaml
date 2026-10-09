@@ -16,6 +16,7 @@ exclude:
   - debian-hercules.lan              # absichtlich meist aus
   - uptimekuma.mythenstrasse56.net   # Kuma kann sich nicht selbst ueberwachen
   - 192.168.1.78                     # NPM-Container: Ping-Name ist npm.mythenstrasse56.net, HTTPS bleibt
+  - ntfy.mythenstrasse56.net         # keine Startseite (web-root disable), Monitor auf /v1/health von Hand
   # Geraete, die schlafen oder ihr WLAN abschalten (Monitor waere dauernd rot/gruen)
   - amazon-fire-hd.lan
   - miele-w1.lan
