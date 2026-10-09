@@ -19,6 +19,7 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 | `proxmox-vzdump/` | neuestes vzdump-Archiv jedes Gasts mit `.log` und `.notes` | TrueNAS |
 | `kontakte/` | alle Kontakte als eine vCard-Datei und die Kontaktgruppen als Textdatei (vCards kennen keine Gruppen) | Kontakte-App auf dem Mac |
 | `nextcloud/` | der lokale Nextcloud-Ordner (inkl. „Config Backups“) | Mac |
+| `nextcloud-fotos/` | Nextcloud-Ordner „Fotos“ (iPhone-Upload), auf dem Mac nicht synchronisiert | TrueNAS `nextcloud/userdata` |
 | `git/` | Mirror-Klone aller GitHub-Repos | GitHub |
 | `SHA256SUMS` | Prüfsummen aller Dateien | |
 | `WARNUNGEN.txt` | nur wenn etwas fehlte oder zu alt war | |
@@ -26,8 +27,9 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 | `NEXTCLOUD-2FA.md` | Nextcloud-2FA abschalten und neu einrichten (`nextcloud-2fa.md`) | |
 
 Die letzten 3 Läufe bleiben (`KEEP`). Ein alter Lauf wird erst gelöscht, wenn der neue
-vollständig ist. Unveränderte Nextcloud-Dateien sind zwischen den Läufen Hardlinks und
-belegen nur einmal Platz. Ein Lauf braucht rund 40 GB.
+vollständig ist. Unveränderte Nextcloud-Dateien und Fotos sind zwischen den Läufen Hardlinks und
+belegen nur einmal Platz. Ein Lauf braucht rund 40 GB plus die Fotos (ca. 90 GB), die
+weiteren Läufe nur, was neu dazukommt.
 
 ## Einmalig einrichten
 
@@ -124,7 +126,7 @@ Keine Ausgabe heisst: alles in Ordnung.
   (z. B. `/var/lib/vz/dump/`), dann in Proxmox den Storage öffnen → Backups → Restore.
 - **Home Assistant:** beim Onboarding einer neuen Installation „Aus Backup wiederherstellen“
   → `homeassistant/*.tar`.
-- **Nextcloud:** die Dateien liegen offen in `nextcloud/`. Login klappt nicht mehr (YubiKey weg,
+- **Nextcloud:** die Dateien liegen offen in `nextcloud/` und `nextcloud-fotos/`. Login klappt nicht mehr (YubiKey weg,
   2FA kaputt): `NEXTCLOUD-2FA.md` auf der Disk, dort steht, wie man 2FA auf TrueNAS abschaltet.
 - **Kontakte:** `kontakte/kontakte-*.vcf` in die Kontakte-App ziehen oder in Nextcloud unter
   Kontakte → Einstellungen → Importieren hochladen. Die Gruppen stehen in `kontakte/gruppen-*.txt`
