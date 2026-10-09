@@ -19,7 +19,7 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 | `proxmox-vzdump/` | neuestes vzdump-Archiv jedes Gasts mit `.log` und `.notes` | TrueNAS |
 | `kontakte/` | alle Kontakte als eine vCard-Datei und die Kontaktgruppen als Textdatei (vCards kennen keine Gruppen) | Kontakte-App auf dem Mac |
 | `nextcloud/` | der lokale Nextcloud-Ordner (inkl. „Config Backups“) | Mac |
-| `nextcloud-fotos/` | Nextcloud-Ordner „Fotos“ (iPhone-Upload), auf dem Mac nicht synchronisiert | TrueNAS `nextcloud/userdata` |
+| `nextcloud-fotos/` | Nextcloud-Ordner „Photos“ (iPhone-Upload), auf dem Mac nicht synchronisiert | TrueNAS `nextcloud/userdata` |
 | `git/` | Mirror-Klone aller GitHub-Repos | GitHub |
 | `SHA256SUMS` | Prüfsummen aller Dateien | |
 | `WARNUNGEN.txt` | nur wenn etwas fehlte oder zu alt war | |

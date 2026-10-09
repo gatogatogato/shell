@@ -6,6 +6,6 @@
 # TRUENAS="root@truenas.lan"
 # HA_DIR="/mnt/tank01/ha-backups"
 # NEXTCLOUD_DIR="$HOME/Nextcloud"
-# FOTOS_DIR="/mnt/tank01/nextcloud/userdata/gato/files/Fotos"
+# FOTOS_DIR="/mnt/tank01/nextcloud/userdata/gato/files/Photos"
 # KEEP=3
 # KUMA_URL="https://uptimekuma.example/api/push/TOKEN"   # optional, Push nach jedem Lauf
