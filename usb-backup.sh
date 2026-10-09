@@ -10,6 +10,7 @@
 #   - TrueNAS-Config inkl. pwenc_secret (wie "Download Configuration" mit Secret Seed)
 #   - neuestes Vaultwarden-Backup und neuestes Home-Assistant-Backup von TrueNAS
 #   - neuestes vzdump-Archiv jedes Proxmox-Gasts von TrueNAS
+#   - Kontakte aus der Kontakte-App als vCard, dazu die Gruppen als Textdatei
 #   - lokaler Nextcloud-Ordner
 #   - Mirror-Klone der GitHub-Repos
 # Jeder Lauf landet in einem eigenen Ordner mit Datum und SHA256SUMS; die letzten $KEEP
@@ -48,7 +49,7 @@ STAMP="$(date +%Y-%m-%d_%H%M%S)"
 RUN="$BASE/$STAMP.partial"
 SSH="ssh -o BatchMode=yes -o ControlMaster=auto -o ControlPath=$HOME/.ssh/usb-backup-%C -o ControlPersist=300"
 WARN=""
-STEPS=8
+STEPS=9
 T0=$(date +%s)
 
 # --- Ausgabe ----------------------------------------------------------------------------
@@ -83,6 +84,46 @@ die()   { echo "  $(paint '[XX]' 1 31) $(paint "$*" 31)"; echo; exit 1; }
 field() { echo "  $(paint "$(printf '%s' "$1" | sed -e :a -e 's/^.\{1,11\}$/&./;ta')" 2) $2"; }
 size()  { du -sh "$1" 2>/dev/null | cut -f1 | tr -d ' '; }
 ts()    { $SSH "$TRUENAS" "$@"; }
+
+# Kontakte-App per AppleScript (alle Accounts). Beim ersten Lauf fragt macOS, ob das Terminal
+# die Kontakte-App steuern darf. Die Skripte stehen in Funktionen, weil bash 3.2 Heredocs
+# innerhalb von $(...) falsch liest.
+contacts_vcards() {     # alle Kontakte als eine vCard-Datei
+    osascript <<'EOF'
+tell application "Contacts" to set cards to vcard of every person
+set text item delimiters to linefeed
+return cards as text
+EOF
+}
+contacts_stats() {      # "<anzahl kontakte> <anzahl mit notiz>"
+    osascript <<'EOF'
+tell application "Contacts"
+    set n to count every person
+    set allNotes to note of every person
+end tell
+set k to 0
+repeat with t in allNotes
+    set t to contents of t
+    if t is not missing value and t is not "" then set k to k + 1
+end repeat
+return (n as text) & " " & (k as text)
+EOF
+}
+contacts_groups() {     # je Gruppe "## Name" und darunter die Mitglieder
+    osascript <<'EOF'
+set out to ""
+tell application "Contacts"
+    repeat with g in every group
+        set out to out & "## " & (name of g) & linefeed
+        repeat with m in (name of every person of g)
+            set out to out & (contents of m) & linefeed
+        end repeat
+        set out to out & linefeed
+    end repeat
+end tell
+return out
+EOF
+}
 
 # Neueste Datei zu einem Muster auf TrueNAS: "<alter in tagen> <pfad>", leer wenn keine
 newest_remote() {
@@ -154,7 +195,35 @@ else
     else warn "Bitwarden-Export ist $age Tage alt, bitte neu exportieren"; fi
 fi
 
-# --- 2. TrueNAS-Config ------------------------------------------------------------------
+# --- 2. Kontakte ------------------------------------------------------------------------
+# vCards enthalten keine Gruppen, darum liegen die Gruppen zusaetzlich als Text daneben.
+section "Kontakte"
+mkdir -p "$RUN/kontakte"
+vcf="$RUN/kontakte/kontakte-$STAMP.vcf"
+contacts_was_running=0
+pgrep -x Contacts >/dev/null && contacts_was_running=1
+if ! err="$(contacts_vcards 2>&1 >"$vcf")"; then
+    rm -f "$vcf"
+    warn "Kontakte nicht exportiert: $(printf '%s' "$err" | tail -1). Zugriff erlauben unter Systemeinstellungen > Datenschutz & Sicherheit > Automation > Terminal > Kontakte."
+else
+    read -r people with_note <<< "$(contacts_stats || true)"
+    with_note=${with_note:-0}
+    vcount() { tr '\r' '\n' < "$vcf" | grep -c "$1" || true; }    # vCards koennen CR-Zeilenenden haben
+    cards=$(vcount '^BEGIN:VCARD')
+    notes=$(vcount '^NOTE[;:]')
+    photos=$(vcount '^PHOTO[;:]')
+    contacts_groups > "$RUN/kontakte/gruppen-$STAMP.txt" || warn "Kontaktgruppen nicht exportiert"
+    groups=$(grep -c '^## ' "$RUN/kontakte/gruppen-$STAMP.txt" || true)
+    [ "$cards" = "$people" ] || warn "Kontakte: $cards vCards, aber $people Kontakte in der Kontakte-App"
+    [ "$notes" -ge "$with_note" ] \
+        || warn "Kontakte: $with_note Kontakte haben eine Notiz, in der vCard sind nur $notes. Kontakte > Einstellungen > vCard > \"Notizen in vCards exportieren\" einschalten."
+    [ "$photos" -gt 0 ] || [ "$cards" -eq 0 ] \
+        || warn "Kontakte: keine Fotos in der vCard. Kontakte > Einstellungen > vCard > \"Fotos in vCards exportieren\" einschalten."
+    ok "$cards Kontakte ($notes mit Notiz, $photos mit Foto), $groups Gruppen, $(size "$vcf")"
+fi
+[ "$contacts_was_running" = 1 ] || osascript -e 'tell application "Contacts" to quit' >/dev/null 2>&1 || true
+
+# --- 3. TrueNAS-Config ------------------------------------------------------------------
 section "TrueNAS-Config"
 mkdir -p "$RUN/truenas"
 # shellcheck disable=SC2016  # laeuft auf TrueNAS, $t soll dort expandieren
@@ -166,12 +235,12 @@ ts 'set -e; t=$(mktemp -d); trap "rm -rf $t" EXIT
 tar -tf "$RUN/truenas/truenas-config-$STAMP.tar" | grep -q pwenc_secret || die "TrueNAS-Config unvollständig."
 ok "truenas-config-$STAMP.tar mit pwenc_secret"
 
-# --- 3. Vaultwarden- und Home-Assistant-Backup ------------------------------------------
+# --- 4. Vaultwarden- und Home-Assistant-Backup ------------------------------------------
 section "Vaultwarden und Home Assistant"
 fetch_newest "Vaultwarden" "$VW_DIR" 'vaultwarden-backup-*.tar.gz' "$VW_MAX_DAYS" "$RUN/vaultwarden"
 fetch_newest "Home Assistant" "$HA_DIR" 'automatic_backup_*.tar' "$HA_MAX_DAYS" "$RUN/homeassistant"
 
-# --- 4. vzdump: neuestes Archiv je Gast (mit .log und .notes) ----------------------------
+# --- 5. vzdump: neuestes Archiv je Gast (mit .log und .notes) ----------------------------
 section "Proxmox vzdump"
 mkdir -p "$RUN/proxmox-vzdump"
 dump_files="$(ts "cd '$DUMP_DIR' && find . -maxdepth 1 -type f -name 'vzdump-*' ! -name '*.log' ! -name '*.notes' -mtime -$DUMP_MAX_DAYS -printf '%T@ %f\n' \
@@ -192,7 +261,7 @@ else
     ok "$guests Gäste, $(size "$RUN/proxmox-vzdump")"
 fi
 
-# --- 5. Nextcloud -----------------------------------------------------------------------
+# --- 6. Nextcloud -----------------------------------------------------------------------
 section "Nextcloud"
 if [ -d "$NEXTCLOUD_DIR" ]; then
     link=""
@@ -206,7 +275,7 @@ else
     warn "Nextcloud-Ordner $NEXTCLOUD_DIR nicht gefunden"
 fi
 
-# --- 6. GitHub-Repos --------------------------------------------------------------------
+# --- 7. GitHub-Repos --------------------------------------------------------------------
 section "GitHub-Repos"
 mkdir -p "$RUN/git"
 done_repos=""
@@ -216,7 +285,7 @@ for r in $REPOS; do
 done
 [ -z "$done_repos" ] || ok "$(echo "$done_repos" | wc -w | tr -d ' ') Repos:$done_repos"
 
-# --- 7. Pruefsummen, Anleitung, abschliessen --------------------------------------------
+# --- 8. Pruefsummen, Anleitung, abschliessen --------------------------------------------
 section "Abschluss"
 [ -f "$HERE/usb-backup.md" ] && cp "$HERE/usb-backup.md" "$RUN/LIESMICH.md"
 [ -f "$HERE/nextcloud-2fa.md" ] && cp "$HERE/nextcloud-2fa.md" "$RUN/NEXTCLOUD-2FA.md"

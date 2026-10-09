@@ -17,6 +17,7 @@ Jeder Lauf ist ein eigener Ordner `homelab-backup/<Datum_Zeit>/` mit:
 | `truenas/` | TrueNAS-Config mit `pwenc_secret` (wie „Download Configuration“ mit Secret Seed) | TrueNAS `/data` |
 | `homeassistant/` | neuestes automatisches Voll-Backup von Home Assistant (`automatic_backup_*.tar`, ca. 7 GB) | TrueNAS |
 | `proxmox-vzdump/` | neuestes vzdump-Archiv jedes Gasts mit `.log` und `.notes` | TrueNAS |
+| `kontakte/` | alle Kontakte als eine vCard-Datei und die Kontaktgruppen als Textdatei (vCards kennen keine Gruppen) | Kontakte-App auf dem Mac |
 | `nextcloud/` | der lokale Nextcloud-Ordner (inkl. „Config Backups“) | Mac |
 | `git/` | Mirror-Klone aller GitHub-Repos | GitHub |
 | `SHA256SUMS` | Prüfsummen aller Dateien | |
@@ -75,7 +76,13 @@ Eine Konfig ist nicht nötig. Nur wenn ein Pfad oder eine Einstellung abweichen 
 `cp usb-backup.conf.example ~/.config/usb-backup.conf`, `chmod 600 ~/.config/usb-backup.conf`
 und dort die Variable setzen.
 
-**4. Erinnerung.** In der Erinnerungen-App eine Erinnerung „USB-Notfallkopie erneuern
+**4. Kontakte.** In der Kontakte-App unter Kontakte → Einstellungen → vCard „Notizen in
+vCards exportieren“ und „Fotos in vCards exportieren“ einschalten. Sonst fehlen sie in der
+Kopie, das Skript warnt dann. Beim ersten Lauf fragt macOS, ob das Terminal die Kontakte-App
+steuern darf: erlauben. Wurde das abgelehnt: Systemeinstellungen → Datenschutz & Sicherheit →
+Automation → Terminal → Kontakte einschalten.
+
+**5. Erinnerung.** In der Erinnerungen-App eine Erinnerung „USB-Notfallkopie erneuern
 (Anleitung: shell/usb-backup.md)“ anlegen, Wiederholen „Alle 3 Monate“.
 
 ## Ablauf (alle 3 Monate)
@@ -119,4 +126,7 @@ Keine Ausgabe heisst: alles in Ordnung.
   → `homeassistant/*.tar`.
 - **Nextcloud:** die Dateien liegen offen in `nextcloud/`. Login klappt nicht mehr (YubiKey weg,
   2FA kaputt): `NEXTCLOUD-2FA.md` auf der Disk, dort steht, wie man 2FA auf TrueNAS abschaltet.
+- **Kontakte:** `kontakte/kontakte-*.vcf` in die Kontakte-App ziehen oder in Nextcloud unter
+  Kontakte → Einstellungen → Importieren hochladen. Die Gruppen stehen in `kontakte/gruppen-*.txt`
+  und müssen von Hand neu angelegt werden.
 - **Repos:** `git clone /Volumes/LastResort/homelab-backup/<Datum_Zeit>/git/ansible.git`.
